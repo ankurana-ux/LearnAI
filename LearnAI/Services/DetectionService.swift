@@ -5,21 +5,21 @@ import Vision
 @Observable
 final class DetectionService {
 
+    private let minimumConfidence: Float = 0.80
+
     var detectedObject: DetectedObject?
     var isScanning = false
 
     private let visionService = VisionService()
- 
-    func processFrame(_ pixelBuffer: CVPixelBuffer) {
-        print("🧠 Processing frame")
-        guard let visionService else { return }
 
+    func processFrame(_ pixelBuffer: CVPixelBuffer) {
+
+        guard let visionService else { return }
         guard !isScanning else { return }
 
         isScanning = true
 
         visionService.detect(pixelBuffer: pixelBuffer) { [weak self] detections in
-
 
             guard let self else { return }
 
@@ -27,13 +27,19 @@ final class DetectionService {
                 self.isScanning = false
             }
 
+            print("Detections: \(detections.count)")
+
             guard let best = detections.max(by: {
                 $0.confidence < $1.confidence
-            }) else {
+            }),
+            best.confidence >= minimumConfidence
+            else {
+
+                detectedObject = nil
                 return
             }
 
-            self.detectedObject = DetectedObject(
+            detectedObject = DetectedObject(
                 name: cocoClasses[best.classIndex].capitalized,
                 category: "Object",
                 shortSummary: "Detected using YOLOv8.",
