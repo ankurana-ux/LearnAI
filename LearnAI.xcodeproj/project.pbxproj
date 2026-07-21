@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AE0A14F7300EA3170043FC67 /* yolov8n.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = AE0A14F6300EA3170043FC67 /* yolov8n.mlpackage */; };
 		AE90E333300E5D43003F6070 /* ObjectInfoSheet.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE90E332300E5D43003F6070 /* ObjectInfoSheet.txt */; };
+		AE9AD99E30100FDA0043295F /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = AE9AD99D30100FD20043295F /* Secrets.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +35,7 @@
 		AE32DB86300D471300C66CE3 /* LearnAITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearnAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE32DB90300D471300C66CE3 /* LearnAIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearnAIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE90E332300E5D43003F6070 /* ObjectInfoSheet.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = ObjectInfoSheet.txt; sourceTree = "<group>"; };
+		AE9AD99D30100FD20043295F /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -82,6 +84,7 @@
 		AE32DB6E300D471100C66CE3 = {
 			isa = PBXGroup;
 			children = (
+				AE9AD99D30100FD20043295F /* Secrets.plist */,
 				AE0A14F6300EA3170043FC67 /* yolov8n.mlpackage */,
 				AE32DB79300D471100C66CE3 /* LearnAI */,
 				AE32DB89300D471300C66CE3 /* LearnAITests */,
@@ -221,6 +224,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE9AD99E30100FDA0043295F /* Secrets.plist in Resources */,
 				AE90E333300E5D43003F6070 /* ObjectInfoSheet.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

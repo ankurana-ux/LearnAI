@@ -4,7 +4,8 @@ struct CameraView: View {
     @State private var camera = CameraService()
     @State private var selectedTab: AppTab = .lens
     @State private var detector = DetectionService()
-
+    @State private var aiInfo: AIObjectInfo?
+    @State private var isLoadingAI = false
     @State private var showObjectSheet = false
     @State private var selectedObject: DetectedObject?
 
@@ -52,6 +53,12 @@ struct CameraView: View {
                         DetectionCard(
                             object: object,
                             onTap: {
+
+                                // If a different object is selected, clear the old AI information.
+                                if selectedObject?.name != object.name {
+                                    aiInfo = nil
+                                }
+
                                 selectedObject = object
                                 showObjectSheet = true
                             }
@@ -84,6 +91,7 @@ struct CameraView: View {
                 camera.onFrameCaptured = { pixelBuffer in
                    
                     detector.processFrame(pixelBuffer)
+                    
                 }
 
                 camera.checkPermissions()
@@ -91,6 +99,8 @@ struct CameraView: View {
             .onDisappear {
 
                 detector.stop()
+                aiInfo = nil
+                selectedObject = nil
 
             }
             .sheet(isPresented: $showObjectSheet) {
@@ -99,8 +109,38 @@ struct CameraView: View {
 
                     ObjectInfoSheet(
                         object: object,
-                        onLearnMore: {
-                            print("Learn More tapped")
+                        aiInfo: aiInfo,
+                        isLoading: isLoadingAI,
+                        onLearnMore:{
+
+                            Task {
+
+                                await MainActor.run {
+                                    isLoadingAI = true
+                                }
+
+                                defer {
+                                    Task { @MainActor in
+                                        isLoadingAI = false
+                                    }
+                                }
+
+                                do {
+
+                                    let info = try await AIService.shared.fetchInfo(for: object.name)
+
+                                    await MainActor.run {
+                                        aiInfo = info
+                                    }
+
+                                } catch {
+
+                                    print(error)
+
+                                }
+
+                            }
+
                         }
                     )
                     .presentationDetents([

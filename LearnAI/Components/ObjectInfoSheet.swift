@@ -3,6 +3,8 @@ import SwiftUI
 struct ObjectInfoSheet: View {
 
     let object: DetectedObject
+    let aiInfo: AIObjectInfo?
+    let isLoading: Bool
     let onLearnMore: () -> Void
 
     var body: some View {
@@ -71,35 +73,99 @@ struct ObjectInfoSheet: View {
 
                 }
 
-                // MARK: About
+                // MARK: AI Information
 
-                VStack(alignment: .leading, spacing: 10) {
+                if let aiInfo {
 
-                    Text("About")
-                        .font(.headline)
+                    VStack(alignment: .leading, spacing: 20) {
 
-                    Text(object.shortSummary)
-                        .foregroundStyle(.secondary)
+                        Text("AI Information")
+                            .font(.headline)
+
+                        Text(aiInfo.summary)
+
+                        Divider()
+
+                        Text("History")
+                            .font(.headline)
+
+                        Text(aiInfo.history)
+
+                        Divider()
+
+                        Text("Uses")
+                            .font(.headline)
+
+                        ForEach(aiInfo.uses, id: \.self) { use in
+                            Label(use, systemImage: "checkmark.circle.fill")
+                        }
+
+                        Divider()
+
+                        Text("Fun Facts")
+                            .font(.headline)
+
+                        ForEach(aiInfo.funFacts, id: \.self) { fact in
+                            Label(fact, systemImage: "sparkles")
+                        }
+
+                        Divider()
+
+                        Text("Safety")
+                            .font(.headline)
+
+                        Text(aiInfo.safety)
+
+                    }
+
+                } else {
+
+                    VStack(alignment: .leading, spacing: 10) {
+
+                        Text("About")
+                            .font(.headline)
+
+                        Text(object.shortSummary)
+                            .foregroundStyle(.secondary)
+
+                    }
 
                 }
 
-                // MARK: Learn More
+                // MARK: Learn More Button
 
                 Button {
 
+                    guard !isLoading else { return }
                     onLearnMore()
 
                 } label: {
 
-                    Label("Learn More with AI", systemImage: "sparkles")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(.blue)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                    Group {
+
+                        if isLoading {
+
+                            ProgressView()
+
+                        } else {
+
+                            Label(
+                                aiInfo == nil ? "Learn More with AI" : "AI Information Loaded",
+                                systemImage: aiInfo == nil ? "sparkles" : "checkmark.circle.fill"
+                            )
+
+                        }
+
+                    }
+                    .frame(maxWidth: .infinity)
 
                 }
+                .font(.headline)
+                .padding()
+                .background(aiInfo == nil ? Color.blue : Color.green)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .disabled(isLoading || aiInfo != nil)
 
             }
             .padding(24)
@@ -173,6 +239,8 @@ struct ObjectInfoSheet: View {
 
         ),
 
+        aiInfo: nil,
+        isLoading: false,
         onLearnMore: {}
 
     )
