@@ -2,12 +2,12 @@ import SwiftUI
 
 struct CameraView: View {
     @State private var camera = CameraService()
-    @State private var selectedTab: AppTab = .lens
     @State private var detector = DetectionService()
     @State private var aiInfo: AIObjectInfo?
     @State private var isLoadingAI = false
     @State private var showObjectSheet = false
     @State private var selectedObject: DetectedObject?
+    @StateObject private var history = HistoryService.shared
 
     var body: some View {
 
@@ -18,7 +18,7 @@ struct CameraView: View {
                 // MARK: Camera Placeholder
 
                 CameraPreview(camera: camera)
-                    .ignoresSafeArea()
+                    .ignoresSafeArea(.container, edges: [.top, .leading, .trailing])
 
                 // MARK: AI Status
 
@@ -47,6 +47,50 @@ struct CameraView: View {
                 VStack {
 
                     Spacer()
+                    
+                    if !history.history.isEmpty {
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+
+                            HStack(spacing: 12) {
+
+                                ForEach(history.history.prefix(10)) { item in
+
+                                    Button {
+
+                                        selectedObject = DetectedObject(
+                                            name: item.name,
+                                            category: "Object",
+                                            shortSummary: "",
+                                            detailedSummary: "",
+                                            confidence: item.confidence,
+                                            icon: "camera.viewfinder",
+                                            facts: []
+                                        )
+
+                                        aiInfo = nil
+                                        showObjectSheet = true
+
+                                    } label: {
+
+                                        Text(item.name)
+                                            .font(.caption.weight(.semibold))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 8)
+                                            .background(.ultraThinMaterial)
+                                            .clipShape(Capsule())
+
+                                    }
+
+                                }
+
+                            }
+                            .padding(.horizontal)
+
+                        }
+                        .padding(.bottom, 12)
+
+                    }
                     
                     if let object = detector.detectedObject {
 
@@ -78,7 +122,6 @@ struct CameraView: View {
                             .padding(.bottom, 8)
 
                     }
-                    BottomTabBar(selectedTab: $selectedTab)
 
                 }
 
@@ -87,7 +130,14 @@ struct CameraView: View {
             
             .onAppear {
 
+                detector.onObjectDetected = { object, pixelBuffer in
 
+                    HistoryService.shared.save(
+                        object: object,
+                        pixelBuffer: pixelBuffer
+                    )
+
+                }
                 camera.onFrameCaptured = { pixelBuffer in
                    
                     detector.processFrame(pixelBuffer)
@@ -95,10 +145,13 @@ struct CameraView: View {
                 }
 
                 camera.checkPermissions()
+                camera.start()
             }
             .onDisappear {
 
+                camera.stop()
                 detector.stop()
+
                 aiInfo = nil
                 selectedObject = nil
 
@@ -151,12 +204,7 @@ struct CameraView: View {
                     .presentationBackground(.ultraThinMaterial)
 
                 }
-
             }
-
         }
-
     }
-
-
 }

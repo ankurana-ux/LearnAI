@@ -4,7 +4,7 @@ import Vision
 
 @Observable
 final class DetectionService {
-
+    var onObjectDetected: ((DetectedObject, CVPixelBuffer) -> Void)?
     private let minimumConfidence: Float = 0.80
 
     var detectedObject: DetectedObject?
@@ -39,7 +39,7 @@ final class DetectionService {
                 return
             }
 
-            detectedObject = DetectedObject(
+            let object = DetectedObject(
                 name: cocoClasses[best.classIndex].capitalized,
                 category: "Object",
                 shortSummary: "Detected using YOLOv8.",
@@ -54,7 +54,9 @@ final class DetectionService {
                     )
                 ]
             )
-        }
+
+            detectedObject = object
+            onObjectDetected?(object, pixelBuffer)        }
     }
 
     func stop() {

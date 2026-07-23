@@ -1,0 +1,128 @@
+import Foundation
+import Combine
+import UIKit
+import CoreImage
+@MainActor
+final class HistoryService: ObservableObject {
+
+    static let shared = HistoryService()
+
+    @Published private(set) var history: [ScanHistory] = []
+
+    private let key = "scan_history"
+    private let context = CIContext()
+
+    private init() {
+        load()
+    }
+    
+    func toggleFavorite(for id: UUID) {
+        guard let index = history.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+        history[index].isFavorite.toggle()
+        persist()
+    }
+    
+    func delete(_ item: ScanHistory) {
+        history.removeAll { $0.id == item.id }
+        persist()
+    }
+    
+    func saveAIInfo(for id: UUID, info: AIObjectInfo) {
+        guard let index = history.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        history[index].aiInfo = StoredAIInfo(
+            summary: info.summary,
+            history: info.history,
+            uses: info.uses,
+            funFacts: info.funFacts,
+            safety: info.safety
+        )
+
+        persist()
+
+    }
+    
+    func loadAIInfo(for id: UUID) async {
+
+        guard let index = history.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        guard history[index].aiInfo == nil else {
+            return
+        }
+
+        do {
+
+            let info = try await AIService.shared.fetchInfo(for: history[index].name)
+
+            saveAIInfo(for: id, info: info)
+
+        } catch {
+
+            print(error)
+
+        }
+
+    }
+    func save(object: DetectedObject, pixelBuffer: CVPixelBuffer) {
+
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+
+        var imageData: Data?
+
+        if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+
+            let image = UIImage(cgImage: cgImage)
+
+            imageData = image.jpegData(compressionQuality: 0.6)
+
+        }
+
+        let item = ScanHistory(
+            name: object.name,
+            confidence: object.confidence,
+            date: Date(),
+            isFavorite: false,
+            imageData: imageData
+        )
+
+        history.removeAll {
+            $0.name == item.name
+        }
+
+        history.insert(item, at: 0)
+        print("Thumbnail saved:", imageData?.count ?? 0, "bytes")
+      persist()
+
+    }
+
+    private func persist() {
+
+        guard let data = try? JSONEncoder().encode(history) else {
+            return
+        }
+
+        UserDefaults.standard.set(data, forKey: key)
+
+    }
+
+    private func load() {
+
+        guard
+            let data = UserDefaults.standard.data(forKey: key),
+            let items = try? JSONDecoder().decode([ScanHistory].self, from: data)
+        else {
+            return
+        }
+
+        history = items
+
+    }
+
+}
+    

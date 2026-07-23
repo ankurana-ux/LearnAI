@@ -15,7 +15,6 @@ import AVFoundation
 
         case .authorized:
             setupCamera()
-
         case .notDetermined:
 
             AVCaptureDevice.requestAccess(for: .video) { granted in
@@ -32,6 +31,26 @@ import AVFoundation
 
         default:
             break
+        }
+
+    }
+    
+    func start() {
+
+        guard !session.isRunning else { return }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.session.startRunning()
+        }
+
+    }
+
+    func stop() {
+
+        guard session.isRunning else { return }
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.session.stopRunning()
         }
 
     }
