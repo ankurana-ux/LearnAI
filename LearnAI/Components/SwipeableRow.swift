@@ -40,51 +40,51 @@ struct SwipeableRow<Content: View, Trailing: View>: View {
         
     }
     var body: some View {
-        
-        GeometryReader { geometry in
 
-            ZStack(alignment: .trailing) {
+        ZStack(alignment: .trailing) {
 
-                HStack(spacing: 0) {
+            HStack(spacing: 0) {
 
-                    Spacer()
+                Spacer()
 
-                    trailing
-                        .frame(width: trailingWidth)
-                }
-
-                content
-                    .frame(width: geometry.size.width)
-                    .background(Color(.systemBackground))
-                    .offset(x: totalOffset)
-                    .contentShape(Rectangle())
-                    .highPriorityGesture(swipeGesture)
-                    .animation(
-                        .interactiveSpring(response: 0.30, dampingFraction: 0.85),
-                        value: totalOffset
-                    )
+                trailing
+                    .frame(width: trailingWidth)
             }
-            .clipped()
+
+            content
+                .frame(maxWidth: .infinity)
+                .background(Color(.systemBackground))
+                .offset(x: totalOffset)
+                .contentShape(Rectangle())
+                .highPriorityGesture(swipeGesture)
+                .animation(
+                    .interactiveSpring(
+                        response: 0.30,
+                        dampingFraction: 0.85
+                    ),
+                    value: totalOffset
+                )
+
         }
-        .frame(maxWidth: .infinity)
+        .clipped()
         .onChange(of: openSwipeID) { _, newValue in
-            
+
             guard newValue != id else { return }
-            
+
             restingOffset = 0
-            
+
         }
         .onChange(of: isEnabled) { _, enabled in
-            
+
             if !enabled {
-                
+
                 openSwipeID = nil
                 restingOffset = 0
-                
+
             }
-            
+
         }
-        
+
     }
     private var swipeGesture: some Gesture {
         
