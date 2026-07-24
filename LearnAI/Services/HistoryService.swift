@@ -69,7 +69,7 @@ final class HistoryService: ObservableObject {
         }
 
     }
-    func save(object: DetectedObject, pixelBuffer: CVPixelBuffer) {
+    func save(object: DetectedObject, pixelBuffer: CVPixelBuffer) -> UUID {
 
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
 
@@ -98,6 +98,7 @@ final class HistoryService: ObservableObject {
         history.insert(item, at: 0)
         print("Thumbnail saved:", imageData?.count ?? 0, "bytes")
       persist()
+        return item.id
 
     }
 

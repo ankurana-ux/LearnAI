@@ -5,6 +5,7 @@ struct CameraView: View {
     @State private var detector = DetectionService()
     @State private var aiInfo: AIObjectInfo?
     @State private var isLoadingAI = false
+    @State private var currentHistoryID: UUID?
     @State private var showObjectSheet = false
     @State private var selectedObject: DetectedObject?
     @StateObject private var history = HistoryService.shared
@@ -132,11 +133,11 @@ struct CameraView: View {
 
                 detector.onObjectDetected = { object, pixelBuffer in
 
-                    HistoryService.shared.save(
+                    currentHistoryID = HistoryService.shared.save(
                         object: object,
                         pixelBuffer: pixelBuffer
                     )
-
+                    
                 }
                 camera.onFrameCaptured = { pixelBuffer in
                    
@@ -184,6 +185,9 @@ struct CameraView: View {
 
                                     await MainActor.run {
                                         aiInfo = info
+                                        if let id = currentHistoryID {
+                                            HistoryService.shared.saveAIInfo(for: id, info: info)
+                                        }
                                     }
 
                                 } catch {

@@ -5,7 +5,6 @@ struct LibraryView: View {
     @StateObject private var history = HistoryService.shared
     @State private var searchText = ""
     @State private var expandedItem: UUID?
-    @State private var openSwipeID: UUID?
 
     private var filteredHistory: [ScanHistory] {
 
@@ -34,90 +33,65 @@ struct LibraryView: View {
 
                 } else {
 
-                    ScrollView {
+                    List {
 
-                        LazyVStack(spacing: 16) {
+                        ForEach(filteredHistory) { item in
 
-                            ForEach(filteredHistory) { item in
+                            LibraryRow(
+                                item: item,
+                                isExpanded: expandedItem == item.id,
 
-                                SwipeableRow(
-                                    id: item.id,
-                                    openSwipeID: $openSwipeID,
-                                    isEnabled: expandedItem != item.id,
+                                onTap: {
 
-                                    trailing: {
+                                    withAnimation(.spring(
+                                        response: 0.35,
+                                        dampingFraction: 0.85
+                                    )) {
 
-                                        ZStack {
-
-                                            Color.red
-
-                                            Button {
-
-                                                history.delete(item)
-
-                                            } label: {
-
-                                                Image(systemName: "trash.fill")
-                                                    .font(.title2)
-                                                    .foregroundStyle(.white)
-                                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                                            }
-                                            .buttonStyle(.plain)
-
-                                        }
-
-                                    },
-
-                                    content: {
-
-                                        LibraryRow(
-                                            item: item,
-                                            isExpanded: expandedItem == item.id,
-
-                                            onTap: {
-
-                                                openSwipeID = nil
-
-                                                withAnimation(.spring(
-                                                    response: 0.35,
-                                                    dampingFraction: 0.85
-                                                )) {
-
-                                                    expandedItem = expandedItem == item.id ? nil : item.id
-
-                                                }
-
-                                            },
-
-                                            onFavorite: {
-
-                                                history.toggleFavorite(for: item.id)
-
-                                            },
-
-                                            onLearnMore: {
-
-                                                Task {
-
-                                                    await history.loadAIInfo(for: item.id)
-
-                                                }
-
-                                            }
-                                        )
+                                        expandedItem = expandedItem == item.id ? nil : item.id
 
                                     }
-                                )
-                                .padding(.horizontal)
-                                .shadow(radius: 2)
+
+                                },
+
+                                onFavorite: {
+
+                                    history.toggleFavorite(for: item.id)
+
+                                },
+
+                                onLearnMore: {
+
+                                    Task {
+
+                                        await history.loadAIInfo(for: item.id)
+
+                                    }
+
+                                }
+                            )
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+
+                                Button(role: .destructive) {
+
+                                    history.delete(item)
+
+                                } label: {
+
+                                    Label("Delete", systemImage: "trash")
+
+                                }
 
                             }
 
                         }
-                        .padding(.vertical)
 
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
 
                 }
 
