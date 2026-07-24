@@ -43,14 +43,7 @@ struct LibraryView: View {
 
                                 onTap: {
 
-                                    withAnimation(.spring(
-                                        response: 0.35,
-                                        dampingFraction: 0.85
-                                    )) {
-
-                                        expandedItem = expandedItem == item.id ? nil : item.id
-
-                                    }
+                                    expandedItem = expandedItem == item.id ? nil : item.id
 
                                 },
 
