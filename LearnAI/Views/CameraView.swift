@@ -9,6 +9,16 @@ struct CameraView: View {
     @State private var showObjectSheet = false
     @State private var selectedObject: DetectedObject?
     @StateObject private var history = HistoryService.shared
+    
+    private func handleDetection(
+        object: DetectedObject,
+        pixelBuffer: CVPixelBuffer
+    ) {
+        currentHistoryID = HistoryService.shared.save(
+                object: object,
+                pixelBuffer: pixelBuffer
+            )
+    }
 
     var body: some View {
 
@@ -132,13 +142,12 @@ struct CameraView: View {
             .onAppear {
 
                 detector.onObjectDetected = { object, pixelBuffer in
-
-                    currentHistoryID = HistoryService.shared.save(
+                    handleDetection(
                         object: object,
                         pixelBuffer: pixelBuffer
                     )
-                    
                 }
+                
                 camera.onFrameCaptured = { pixelBuffer in
                    
                     detector.processFrame(pixelBuffer)
@@ -157,8 +166,18 @@ struct CameraView: View {
                 selectedObject = nil
 
             }
-            .sheet(isPresented: $showObjectSheet) {
+            .sheet(
+                isPresented: $showObjectSheet,
+                onDismiss: {
 
+                    detector.resume()
+
+                    selectedObject = nil
+                    aiInfo = nil
+                    currentHistoryID = nil
+
+                }
+            ) {
                 if let object = selectedObject {
 
                     ObjectInfoSheet(

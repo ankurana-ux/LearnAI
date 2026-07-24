@@ -1,4 +1,5 @@
 import Foundation
+import CoreVideo
 
 final class AIService {
 
@@ -19,9 +20,16 @@ final class AIService {
         return key
     }
 
-    
+    func identifyObject(
+        from pixelBuffer: CVPixelBuffer
+    ) async throws -> AIObjectInfo {
+
+        fatalError("Coming in next step")
+
+    }
     
     func fetchInfo(for object: String) async throws -> AIObjectInfo {
+        
         let key = object.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
 
         if let cached = cache[key] {
