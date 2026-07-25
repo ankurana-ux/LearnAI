@@ -42,7 +42,29 @@ final class HistoryService: ObservableObject {
             safety: info.safety
         )
 
+
         persist()
+
+    }
+    
+    func aiInfo(for id: UUID) -> AIObjectInfo? {
+
+        guard
+            let item = history.first(where: { $0.id == id }),
+            let stored = item.aiInfo
+        else {
+            
+            return nil
+        }
+
+        return AIObjectInfo(
+            name: item.name,
+            summary: stored.summary,
+            history: stored.history,
+            uses: stored.uses,
+            funFacts: stored.funFacts,
+            safety: stored.safety
+        )
 
     }
     
@@ -72,17 +94,11 @@ final class HistoryService: ObservableObject {
     func save(object: DetectedObject, pixelBuffer: CVPixelBuffer) -> UUID {
 
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-
         var imageData: Data?
-
         if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
-
             let image = UIImage(cgImage: cgImage)
-
             imageData = image.jpegData(compressionQuality: 0.6)
-
         }
-
         let item = ScanHistory(
             name: object.name,
             confidence: object.confidence,
@@ -90,16 +106,36 @@ final class HistoryService: ObservableObject {
             isFavorite: false,
             imageData: imageData
         )
-
         history.removeAll {
             $0.name == item.name
         }
 
         history.insert(item, at: 0)
-        print("Thumbnail saved:", imageData?.count ?? 0, "bytes")
+//        print("Thumbnail saved:", imageData?.count ?? 0, "bytes")
       persist()
         return item.id
+    }
+    
+    func renameObject(
+        id: UUID,
+        to newName: String
+    ) {
 
+        guard let index = history.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+
+        history[index] = ScanHistory(
+            id: history[index].id,
+            name: newName,
+            confidence: history[index].confidence,
+            date: history[index].date,
+            isFavorite: history[index].isFavorite,
+            imageData: history[index].imageData,
+            aiInfo: history[index].aiInfo
+        )
+
+        persist()
     }
 
     private func persist() {

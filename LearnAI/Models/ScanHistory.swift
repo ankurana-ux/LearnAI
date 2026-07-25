@@ -12,7 +12,24 @@ struct StoredAIInfo: Codable {
 
 struct ScanHistory: Identifiable, Codable {
 
-    let id = UUID()
+    let id: UUID
+    init(
+        id: UUID = UUID(),
+        name: String,
+        confidence: Double,
+        date: Date,
+        isFavorite: Bool = false,
+        imageData: Data? = nil,
+        aiInfo: StoredAIInfo? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.confidence = confidence
+        self.date = date
+        self.isFavorite = isFavorite
+        self.imageData = imageData
+        self.aiInfo = aiInfo
+    }
     let name: String
     let confidence: Double
     let date: Date

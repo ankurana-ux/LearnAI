@@ -33,8 +33,6 @@ final class DetectionService {
                 self.isScanning = false
             }
             
-            print("Detections: \(detections.count)")
-            
             guard let best = detections.max(by: {
                 $0.confidence < $1.confidence
             }),

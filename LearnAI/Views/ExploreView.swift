@@ -1,14 +1,5 @@
 import SwiftUI
 
-struct ExploreCategory: Identifiable {
-
-    let id = UUID()
-    let title: String
-    let icon: String
-    let color: Color
-
-}
-
 struct ExploreView: View {
 
     let categories = [
@@ -35,31 +26,67 @@ struct ExploreView: View {
 
             ScrollView {
 
-                LazyVGrid(columns: columns, spacing: 18) {
+                VStack(spacing: 32) {
 
-                    ForEach(categories) { category in
+                    ExploreSection(
+                        title: "Trending Today",
+                        systemImage: "flame.fill"
+                    ) {
 
-                        RoundedRectangle(cornerRadius: 22)
-                            .fill(category.color.opacity(0.15))
-                            .frame(height: 160)
-                            .overlay {
+                        ScrollView(.horizontal, showsIndicators: false) {
 
-                                VStack(spacing: 16) {
+                            HStack(spacing: 16) {
 
-                                    Image(systemName: category.icon)
-                                        .font(.system(size: 38))
+                                TrendingCard(
+                                    title: "Panda",
+                                    emoji: "🐼"
+                                )
 
-                                    Text(category.title)
-                                        .font(.headline)
+                                TrendingCard(
+                                    title: "Saturn",
+                                    emoji: "🪐"
+                                )
 
-                                }
+                                TrendingCard(
+                                    title: "Volcano",
+                                    emoji: "🌋"
+                                )
+
+                                TrendingCard(
+                                    title: "Octopus",
+                                    emoji: "🐙"
+                                )
 
                             }
+                            .padding(.horizontal)
+
+                        }
+
+                    }
+
+                    ExploreSection(
+                        title: "Categories",
+                        systemImage: "square.grid.2x2.fill"
+                    ) {
+
+                        LazyVGrid(
+                            columns: columns,
+                            spacing: 18
+                        ) {
+
+                            ForEach(categories) { category in
+
+                                CategoryCard(category: category)
+
+                            }
+
+                        }
+                        .padding(.horizontal)
 
                     }
 
                 }
-                .padding()
+                .padding(.vertical)
 
             }
             .navigationTitle("Explore")

@@ -6,18 +6,86 @@ struct CameraView: View {
     @State private var aiInfo: AIObjectInfo?
     @State private var isLoadingAI = false
     @State private var currentHistoryID: UUID?
-    @State private var showObjectSheet = false
     @State private var selectedObject: DetectedObject?
     @StateObject private var history = HistoryService.shared
+    @State private var isProcessingDetection = false
+    
     
     private func handleDetection(
         object: DetectedObject,
         pixelBuffer: CVPixelBuffer
     ) {
+
+        guard !isProcessingDetection else {
+            return
+        }
+
+        isProcessingDetection = true
+
         currentHistoryID = HistoryService.shared.save(
-                object: object,
-                pixelBuffer: pixelBuffer
-            )
+            object: object,
+            pixelBuffer: pixelBuffer
+        )
+
+        Task {
+
+            defer {
+                Task { @MainActor in
+                    isProcessingDetection = false
+                }
+            }
+
+            await MainActor.run {
+                isLoadingAI = true
+            }
+            
+            do {
+
+                let info = try await AIService.shared.identifyObject(
+                    from: pixelBuffer
+                )
+                await MainActor.run {
+
+                    aiInfo = info
+
+                    if let id = currentHistoryID {
+
+                        HistoryService.shared.renameObject(
+                            id: id,
+                            to: info.name
+                        )
+
+                        HistoryService.shared.saveAIInfo(
+                            for: id,
+                            info: info
+                        )
+
+                    }
+
+                    isLoadingAI = false
+                    selectedObject = DetectedObject(
+                        name: info.name,
+                        category: object.category,
+                        shortSummary: info.summary,
+                        detailedSummary: info.history,
+                        confidence: object.confidence,
+                        icon: object.icon,
+                        facts: object.facts
+                    )
+                }
+
+            } catch {
+
+                await MainActor.run {
+                    isLoadingAI = false
+                }
+
+                print("❌ Gemini Vision Error:")
+                print(error.localizedDescription)
+            }
+
+        }
+
     }
 
     var body: some View {
@@ -79,8 +147,8 @@ struct CameraView: View {
                                             facts: []
                                         )
 
-                                        aiInfo = nil
-                                        showObjectSheet = true
+                                        aiInfo = HistoryService.shared.aiInfo(for: item.id)
+
 
                                     } label: {
 
@@ -115,7 +183,6 @@ struct CameraView: View {
                                 }
 
                                 selectedObject = object
-                                showObjectSheet = true
                             }
                         )
                         .padding(.horizontal)
@@ -142,10 +209,12 @@ struct CameraView: View {
             .onAppear {
 
                 detector.onObjectDetected = { object, pixelBuffer in
-                    handleDetection(
-                        object: object,
-                        pixelBuffer: pixelBuffer
-                    )
+                    DispatchQueue.main.async {
+                        handleDetection(
+                            object: object,
+                            pixelBuffer: pixelBuffer
+                        )
+                    }
                 }
                 
                 camera.onFrameCaptured = { pixelBuffer in
@@ -167,57 +236,24 @@ struct CameraView: View {
 
             }
             .sheet(
-                isPresented: $showObjectSheet,
+                item: $selectedObject,
                 onDismiss: {
 
                     detector.resume()
 
-                    selectedObject = nil
+
                     aiInfo = nil
                     currentHistoryID = nil
 
                 }
-            ) {
-                if let object = selectedObject {
-
+            )
+                { object in
+                    
                     ObjectInfoSheet(
                         object: object,
                         aiInfo: aiInfo,
                         isLoading: isLoadingAI,
-                        onLearnMore:{
-
-                            Task {
-
-                                await MainActor.run {
-                                    isLoadingAI = true
-                                }
-
-                                defer {
-                                    Task { @MainActor in
-                                        isLoadingAI = false
-                                    }
-                                }
-
-                                do {
-
-                                    let info = try await AIService.shared.fetchInfo(for: object.name)
-
-                                    await MainActor.run {
-                                        aiInfo = info
-                                        if let id = currentHistoryID {
-                                            HistoryService.shared.saveAIInfo(for: id, info: info)
-                                        }
-                                    }
-
-                                } catch {
-
-                                    print(error)
-
-                                }
-
-                            }
-
-                        }
+                        onLearnMore: { }
                     )
                     .presentationDetents([
                         .fraction(0.42),
@@ -225,9 +261,9 @@ struct CameraView: View {
                     ])
                     .presentationDragIndicator(.visible)
                     .presentationBackground(.ultraThinMaterial)
-
+                    
                 }
             }
         }
     }
-}
+

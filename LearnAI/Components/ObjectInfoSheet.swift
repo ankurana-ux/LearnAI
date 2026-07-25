@@ -79,6 +79,7 @@ struct ObjectInfoSheet: View {
 
                     VStack(alignment: .leading, spacing: 20) {
 
+
                         Text("AI Information")
                             .font(.headline)
 
