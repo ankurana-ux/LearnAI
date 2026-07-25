@@ -2,16 +2,10 @@ import SwiftUI
 
 struct ExploreView: View {
 
-    let categories = [
+    @StateObject private var history = HistoryService.shared
 
-        ExploreCategory(title: "Animals", icon: "pawprint.fill", color: .orange),
-        ExploreCategory(title: "Plants", icon: "leaf.fill", color: .green),
-        ExploreCategory(title: "Technology", icon: "laptopcomputer", color: .blue),
-        ExploreCategory(title: "Food", icon: "fork.knife", color: .red),
-        ExploreCategory(title: "Vehicles", icon: "car.fill", color: .purple),
-        ExploreCategory(title: "Space", icon: "sparkles", color: .indigo)
+    let categories = ExploreData.categories
 
-    ]
 
     let columns = [
 
@@ -19,6 +13,8 @@ struct ExploreView: View {
         GridItem(.flexible())
 
     ]
+
+    let trendingObjects = ExploreData.trendingObjects
 
     var body: some View {
 
@@ -28,6 +24,20 @@ struct ExploreView: View {
 
                 VStack(spacing: 32) {
 
+                    NavigationLink {
+
+                        TrendingDetailView(
+                            object: ExploreData.dailyObject
+                        )
+
+                    } label: {
+
+                        DailyCuriosityCard(
+                            object: ExploreData.dailyObject
+                        )
+
+                    }
+                    .buttonStyle(.plain)
                     ExploreSection(
                         title: "Trending Today",
                         systemImage: "flame.fill"
@@ -37,25 +47,19 @@ struct ExploreView: View {
 
                             HStack(spacing: 16) {
 
-                                TrendingCard(
-                                    title: "Panda",
-                                    emoji: "🐼"
-                                )
+                                ForEach(trendingObjects) { object in
 
-                                TrendingCard(
-                                    title: "Saturn",
-                                    emoji: "🪐"
-                                )
+                                    NavigationLink {
 
-                                TrendingCard(
-                                    title: "Volcano",
-                                    emoji: "🌋"
-                                )
+                                        TrendingDetailView(object: object)
 
-                                TrendingCard(
-                                    title: "Octopus",
-                                    emoji: "🐙"
-                                )
+                                    } label: {
+
+                                        TrendingCard(object: object)
+
+                                    }
+
+                                }
 
                             }
                             .padding(.horizontal)
@@ -82,6 +86,71 @@ struct ExploreView: View {
 
                         }
                         .padding(.horizontal)
+
+                    }
+
+                    ExploreSection(
+                        title: "Continue Learning",
+                        systemImage: "book.fill"
+                    ) {
+
+                        if history.history.isEmpty {
+
+                            ContentUnavailableView(
+                                "Nothing Yet",
+                                systemImage: "book.closed",
+                                description: Text("Scan objects to build your learning library.")
+                            )
+                            .padding(.horizontal)
+
+                        } else {
+
+                            VStack(spacing: 16) {
+
+                                ForEach(history.history.prefix(5)) { item in
+
+                                    NavigationLink {
+
+                                        Text(item.name)
+                                            .navigationTitle(item.name)
+
+                                    } label: {
+
+                                        HStack {
+
+                                            Image(systemName: "book.fill")
+                                                .font(.title2)
+                                                .foregroundStyle(.blue)
+
+                                            VStack(alignment: .leading) {
+
+                                                Text(item.name)
+                                                    .font(.headline)
+
+                                                Text(item.date.formatted(date: .abbreviated, time: .omitted))
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+
+                                            }
+
+                                            Spacer()
+
+                                            Image(systemName: "chevron.right")
+                                                .foregroundStyle(.secondary)
+
+                                        }
+                                        .padding()
+                                        .background(.ultraThinMaterial)
+                                        .clipShape(RoundedRectangle(cornerRadius: 18))
+
+                                    }
+
+                                }
+
+                            }
+                            .padding(.horizontal)
+
+                        }
 
                     }
 
