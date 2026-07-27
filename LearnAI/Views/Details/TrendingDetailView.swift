@@ -3,7 +3,8 @@ import SwiftUI
 
 struct TrendingDetailView: View {
 
-    let object: TrendingObject
+    let object: LearningTopic
+    
 
     var body: some View {
 

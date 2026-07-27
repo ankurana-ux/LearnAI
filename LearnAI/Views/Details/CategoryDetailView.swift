@@ -17,58 +17,76 @@ struct CategoryDetailView: View {
 
     var body: some View {
 
-        ScrollView {
+        Group {
 
-            LazyVGrid(columns: columns, spacing: 20) {
+            if items.isEmpty {
 
-                ForEach(items) { item in
+                ContentUnavailableView(
+                    "Coming Soon",
+                    systemImage: "sparkles",
+                    description: Text("We're adding more topics to this category.")
+                )
 
-                    NavigationLink {
+            } else {
 
-                        TrendingDetailView(
-                            object: TrendingObject(
-                                name: item.name,
-                                imageName: item.imageName,
-                                summary: item.summary,
-                                description: item.description
-                            )
-                        )
+                ScrollView {
 
-                    } label: {
+                    LazyVGrid(columns: columns, spacing: 20) {
 
-                        VStack(alignment: .leading, spacing: 12) {
+                        ForEach(items) { item in
 
-                            Image(item.imageName)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(height: 140)
-                                .frame(maxWidth: .infinity)
-                                .clipShape(
-                                    RoundedRectangle(cornerRadius: 16)
+                            NavigationLink {
+
+                                TrendingDetailView(
+                                    object: LearningTopic(
+                                        name: item.name,
+                                        imageName: item.imageName,
+                                        summary: item.summary,
+                                        description: item.description,
+                                        learners: nil,
+                                        category: item.category
+                                    )
                                 )
 
-                            Text(item.name)
-                                .font(.headline)
+                            } label: {
 
-                            Text(item.summary)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
+                                VStack(alignment: .leading, spacing: 12) {
+
+                                    Image(item.imageName)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 140)
+                                        .frame(maxWidth: .infinity)
+                                        .clipShape(
+                                            RoundedRectangle(cornerRadius: 16)
+                                        )
+
+                                    Text(item.name)
+                                        .font(.headline)
+
+                                    Text(item.summary)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+
+                                }
+                                .padding()
+                                .background(.ultraThinMaterial)
+                                .clipShape(
+                                    RoundedRectangle(cornerRadius: 18)
+                                )
+
+                            }
+                            .buttonStyle(.plain)
 
                         }
-                        .padding()
-                        .background(.ultraThinMaterial)
-                        .clipShape(
-                            RoundedRectangle(cornerRadius: 18)
-                        )
 
                     }
-                    .buttonStyle(.plain)
+                    .padding()
 
                 }
 
             }
-            .padding()
 
         }
         .navigationTitle(category.title)
@@ -79,9 +97,13 @@ struct CategoryDetailView: View {
 }
 
 #Preview {
+
     NavigationStack {
+
         CategoryDetailView(
             category: CategoryData.categories.first!
         )
+
     }
+
 }

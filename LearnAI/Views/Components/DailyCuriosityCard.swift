@@ -2,8 +2,7 @@ import SwiftUI
 
 struct DailyCuriosityCard: View {
 
-    let object: TrendingObject
-
+    let object: LearningTopic
     var body: some View {
 
         VStack(alignment: .leading, spacing: 16) {

@@ -54,11 +54,13 @@ struct ExploreView: View {
                                     NavigationLink {
 
                                         TrendingDetailView(
-                                            object: TrendingObject(
+                                            object: LearningTopic(
                                                 name: object.name,
                                                 imageName: object.imageName,
                                                 summary: object.summary,
-                                                description: object.summary
+                                                description: object.summary,
+                                                learners: object.learners,
+                                                category: "World Learning"
                                             )
                                         )
 
@@ -122,7 +124,16 @@ struct ExploreView: View {
 
                             ForEach(categories) { category in
 
-                                CategoryCard(category: category)
+                                NavigationLink {
+
+                                    CategoryDetailView(category: category)
+
+                                } label: {
+
+                                    CategoryCard(category: category)
+
+                                }
+                                .buttonStyle(.plain)
 
                             }
 

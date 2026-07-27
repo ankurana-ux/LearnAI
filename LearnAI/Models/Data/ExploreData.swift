@@ -6,8 +6,8 @@ struct ExploreData {
 
     static let trendingObjects = TrendingData.objects
     
-    static var dailyObject: TrendingObject {
-
+    static var dailyObject: LearningTopic {
+        
         let day = Calendar.current.ordinality(
             of: .day,
             in: .year,
