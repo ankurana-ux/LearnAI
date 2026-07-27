@@ -6,7 +6,6 @@ struct ExploreView: View {
 
     let categories = ExploreData.categories
 
-
     let columns = [
 
         GridItem(.flexible()),
@@ -38,6 +37,48 @@ struct ExploreView: View {
 
                     }
                     .buttonStyle(.plain)
+
+                    VStack(alignment: .leading, spacing: 16) {
+
+                        Text("🌍 The World Is Learning")
+                            .font(.title2)
+                            .bold()
+                            .padding(.horizontal)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+
+                            HStack(spacing: 16) {
+
+                                ForEach(WorldLearningData.objects) { object in
+
+                                    NavigationLink {
+
+                                        TrendingDetailView(
+                                            object: TrendingObject(
+                                                name: object.name,
+                                                imageName: object.imageName,
+                                                summary: object.summary,
+                                                description: object.summary
+                                            )
+                                        )
+
+                                    } label: {
+
+                                        WorldLearningCard(object: object)
+                                            .frame(width: 320)
+
+                                    }
+                                    .buttonStyle(.plain)
+
+                                }
+
+                            }
+                            .padding(.horizontal)
+
+                        }
+
+                    }
+
                     ExploreSection(
                         title: "Trending Today",
                         systemImage: "flame.fill"
@@ -58,6 +99,7 @@ struct ExploreView: View {
                                         TrendingCard(object: object)
 
                                     }
+                                    .buttonStyle(.plain)
 
                                 }
 
@@ -141,7 +183,9 @@ struct ExploreView: View {
                                         }
                                         .padding()
                                         .background(.ultraThinMaterial)
-                                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                                        .clipShape(
+                                            RoundedRectangle(cornerRadius: 18)
+                                        )
 
                                     }
 
