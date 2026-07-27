@@ -6,42 +6,150 @@ struct ObjectInfoSheet: View {
     let aiInfo: AIObjectInfo?
     let isLoading: Bool
     let onLearnMore: () -> Void
-
+    @State private var question = ""
+    @State private var messages: [ChatMessage] = []
+    @State private var isAskingAI = false
+    
     var body: some View {
+        
+    ScrollViewReader { proxy in
 
         ScrollView {
 
             VStack(alignment: .leading, spacing: 24) {
-
+                
                 // MARK: Handle
-
+                
                 Capsule()
                     .fill(.secondary.opacity(0.4))
                     .frame(width: 42, height: 5)
                     .frame(maxWidth: .infinity)
-
+                
                 // MARK: Header
-
+                
                 HStack(alignment: .top) {
-
+                    
                     Image(systemName: object.icon)
                         .font(.system(size: 42))
                         .foregroundStyle(.green)
-
+                    
                     VStack(alignment: .leading, spacing: 6) {
-
+                        
                         Text(object.name)
                             .font(.largeTitle.bold())
-
+                        
                         Text("AI identified this object with high confidence.")
                             .foregroundStyle(.secondary)
+                        
+                    }
+                    
+                    Spacer()
+                    
+                }
+                
+                Divider()
+                
+                ScrollView {
+                    
+                    LazyVStack(alignment: .leading, spacing: 18) {
+                        
+                        ForEach(messages) { message in
+                            
+                            HStack {
+
+                                if message.isUser {
+
+                                    Spacer(minLength: 50)
+
+                                    VStack(alignment: .trailing, spacing: 4) {
+
+                                        Text("You")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+
+                                        Text(message.text)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                            .foregroundStyle(.white)
+                                            .background(Color.accentColor)
+                                            .clipShape(
+                                                RoundedRectangle(cornerRadius: 18)
+                                            )
+                                    }
+
+                                } else {
+
+                                    VStack(alignment: .leading, spacing: 4) {
+
+                                        HStack(spacing: 6) {
+
+                                            Image(systemName: "sparkles")
+                                                .foregroundStyle(.blue)
+
+                                            Text("LearnAI")
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+
+                                        }
+
+                                        Text(message.text)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                            .background(.ultraThinMaterial)
+                                            .clipShape(
+                                                RoundedRectangle(cornerRadius: 18)
+                                            )
+
+                                    }
+
+                                    Spacer(minLength: 50)
+
+                                }
+
+                            }
+                            .id(message.id)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                            
+                        }
+                        
+                        if isAskingAI {
+                            
+                            HStack {
+
+                                Image(systemName: "sparkles")
+                                    .foregroundStyle(.blue)
+
+                                ProgressView()
+
+                                Text("LearnAI is thinking...")
+                                    .foregroundStyle(.secondary)
+
+                                Spacer()
+
+                            }
+                            .padding(.horizontal)
+                            
+                        }
+                        
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+                    
+                }
+                .frame(maxHeight: 250)
+                .onChange(of: messages.count) { _, _ in
+
+                    guard let last = messages.last else { return }
+
+                    withAnimation {
+
+                        proxy.scrollTo(last.id, anchor: .bottom)
 
                     }
 
-                    Spacer()
-
                 }
-
+                
+            }
                 // MARK: Summary
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -133,6 +241,77 @@ struct ObjectInfoSheet: View {
 
                 }
 
+                Divider()
+
+                Text("Ask AI")
+                    .font(.headline)
+
+                HStack {
+
+                    TextField(
+                        "Ask a question...",
+                        text: $question
+                    )
+                    .textFieldStyle(.roundedBorder)
+
+                    Button("Send") {
+
+                        guard !question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                            return
+                        }
+
+                        Task {
+
+                            let userQuestion = question.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                            guard !userQuestion.isEmpty else { return }
+
+                            messages.append(
+                                ChatMessage(
+                                    isUser: true,
+                                    text: userQuestion
+                                )
+                            )
+
+                            question = ""
+                            isAskingAI = true
+
+                            do {
+
+                                let reply = try await AIService.shared.askQuestion(
+                                    about: object.name,
+                                    question: userQuestion
+                                )
+
+                                messages.append(
+                                    ChatMessage(
+                                        isUser: false,
+                                        text: reply
+                                    )
+                                )
+
+                            } catch {
+
+                                messages.append(
+                                    ChatMessage(
+                                        isUser: false,
+                                        text: "Sorry, something went wrong."
+                                    )
+                                )
+
+                            }
+
+                            isAskingAI = false
+
+                        }
+
+                    }
+                    .disabled(
+                        question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isAskingAI
+                    )
+
+                }
+                
                 // MARK: Learn More Button
 
                 Button {
@@ -154,6 +333,7 @@ struct ObjectInfoSheet: View {
                                 aiInfo == nil ? "Learn More with AI" : "AI Information Loaded",
                                 systemImage: aiInfo == nil ? "sparkles" : "checkmark.circle.fill"
                             )
+
 
                         }
 

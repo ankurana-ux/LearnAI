@@ -39,28 +39,7 @@ final class AIService {
 
         let base64Image = imageData.base64EncodedString()
 
-        let prompt = """
-        You are an object recognition expert.
-
-        Identify the SINGLE main object in the image.
-
-        Return ONLY valid JSON.
-
-        {
-          "name": "",
-          "summary": "",
-          "history": "",
-          "uses": [],
-          "funFacts": [],
-          "safety": ""
-        }
-
-        Rules:
-        - Use the common English name.
-        - Be specific (e.g. "Labrador Retriever", not "Dog").
-        - Do not include markdown.
-        - Do not include explanations outside the JSON.
-        """
+        let prompt = GeminiPromptBuilder.imageRecognition
 
         let text = try await generateContent(
             parts: [
@@ -103,20 +82,7 @@ final class AIService {
             return cached
         }
 
-        let prompt = """
-        Return ONLY valid JSON.
-
-        {
-          "name": "",
-          "summary": "",
-          "history": "",
-          "uses": [],
-          "funFacts": [],
-          "safety": ""
-        }
-
-        Object: \(object)
-        """
+        let prompt = GeminiPromptBuilder.objectInformation(for: object)
 
         let text = try await generateContent(
             parts: [
@@ -138,6 +104,34 @@ final class AIService {
         return info
     }
 
+    func askQuestion(
+        about object: String,
+        question: String
+    ) async throws -> String {
+
+        let prompt = """
+        You are an expert teacher.
+
+        The user is asking about: \(object)
+
+        Question:
+        \(question)
+
+        Answer in simple, conversational English.
+
+        Keep the answer under 150 words.
+        Do not use Markdown.
+        """
+
+        return try await generateContent(
+            parts: [
+                [
+                    "text": prompt
+                ]
+            ]
+        )
+    }
+    
     // MARK: - Gemini API
 
     private func generateContent(
@@ -145,7 +139,7 @@ final class AIService {
     ) async throws -> String {
 
         let url = URL(
-            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=\(apiKey)"
+            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=\(apiKey)"
         )!
 
         var request = URLRequest(url: url)
@@ -166,25 +160,29 @@ final class AIService {
         request.httpBody = try JSONSerialization.data(
             withJSONObject: body
         )
+        
 
         let (data, response) = try await URLSession.shared.data(
             for: request
         )
 
-        guard
-            let httpResponse = response as? HTTPURLResponse,
-            httpResponse.statusCode == 200
-        else {
-            let message = String(
-                data: data,
-                encoding: .utf8
-            ) ?? "Unknown API error"
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+
+            if let error = String(data: data, encoding: .utf8) {
+                print("❌ Gemini API Error (\(httpResponse.statusCode))")
+                print(error)
+            }
 
             throw NSError(
                 domain: "Gemini",
-                code: -1,
+                code: httpResponse.statusCode,
                 userInfo: [
-                    NSLocalizedDescriptionKey: message
+                    NSLocalizedDescriptionKey:
+                        String(data: data, encoding: .utf8) ?? "Unknown API error"
                 ]
             )
         }
@@ -193,6 +191,11 @@ final class AIService {
             GenerateContentResponse.self,
             from: data
         )
+        
+        if let text = decoded.candidates.first?.content.parts.first?.text {
+            
+        }
+
 
         guard
             let text = decoded
