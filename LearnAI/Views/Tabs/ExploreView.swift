@@ -7,13 +7,11 @@ struct ExploreView: View {
     let categories = ExploreData.categories
 
     let columns = [
-
         GridItem(.flexible()),
         GridItem(.flexible())
-
     ]
 
-    let trendingObjects = ExploreData.trendingObjects
+    let trendingTopics = ExploreData.trendingTopics
 
     var body: some View {
 
@@ -26,13 +24,13 @@ struct ExploreView: View {
                     NavigationLink {
 
                         TrendingDetailView(
-                            object: ExploreData.dailyObject
+                            object: ExploreData.dailyTopic
                         )
 
                     } label: {
 
                         DailyCuriosityCard(
-                            object: ExploreData.dailyObject
+                            object: ExploreData.dailyTopic
                         )
 
                     }
@@ -54,14 +52,7 @@ struct ExploreView: View {
                                     NavigationLink {
 
                                         TrendingDetailView(
-                                            object: LearningTopic(
-                                                name: object.name,
-                                                imageName: object.imageName,
-                                                summary: object.summary,
-                                                description: object.summary,
-                                                learners: object.learners,
-                                                category: "World Learning"
-                                            )
+                                            object: object
                                         )
 
                                     } label: {
@@ -90,15 +81,15 @@ struct ExploreView: View {
 
                             HStack(spacing: 16) {
 
-                                ForEach(trendingObjects) { object in
+                                ForEach(trendingTopics) { topic in
 
                                     NavigationLink {
 
-                                        TrendingDetailView(object: object)
+                                        TrendingDetailView(object: topic)
 
                                     } label: {
 
-                                        TrendingCard(object: object)
+                                        TrendingCard(object: topic)
 
                                     }
                                     .buttonStyle(.plain)

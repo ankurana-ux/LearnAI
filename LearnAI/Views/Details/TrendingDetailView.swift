@@ -46,7 +46,7 @@ struct TrendingDetailView: View {
 #Preview {
 
     TrendingDetailView(
-        object: ExploreData.trendingObjects.first!
+        object: ExploreData.trendingTopics.first!
     )
 
 }

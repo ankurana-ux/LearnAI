@@ -4,9 +4,9 @@ struct ExploreData {
 
     static let categories = CategoryData.categories
 
-    static let trendingObjects = TrendingData.objects
+    static let trendingTopics = TrendingData.objects
     
-    static var dailyObject: LearningTopic {
+    static var dailyTopic: LearningTopic {
         
         let day = Calendar.current.ordinality(
             of: .day,
@@ -14,8 +14,8 @@ struct ExploreData {
             for: Date()
         ) ?? 0
 
-        return trendingObjects[
-            day % trendingObjects.count
+        return trendingTopics[
+            day % trendingTopics.count
         ]
 
     }

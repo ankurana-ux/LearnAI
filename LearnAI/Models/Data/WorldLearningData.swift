@@ -2,34 +2,42 @@ import Foundation
 
 struct WorldLearningData {
 
-    static let objects = [
+    static let objects: [LearningTopic] = [
 
-        WorldLearning(
+        LearningTopic(
             name: "Octopus",
             imageName: "octopus",
+            summary: "Discover how octopuses camouflage and solve puzzles.",
+            description: "Discover how octopuses camouflage and solve puzzles.",
             learners: "1.2M learners today",
-            summary: "Discover how octopuses camouflage and solve puzzles."
+            category: "World Learning"
         ),
 
-        WorldLearning(
+        LearningTopic(
             name: "Saturn",
             imageName: "saturn",
+            summary: "Explore the beautiful rings of Saturn.",
+            description: "Explore the beautiful rings of Saturn.",
             learners: "980K learners today",
-            summary: "Explore the beautiful rings of Saturn."
+            category: "World Learning"
         ),
 
-        WorldLearning(
+        LearningTopic(
             name: "Humanoid Robots",
             imageName: "robot",
+            summary: "Learn how modern humanoid robots are evolving.",
+            description: "Learn how modern humanoid robots are evolving.",
             learners: "742K learners today",
-            summary: "Learn how modern humanoid robots are evolving."
+            category: "World Learning"
         ),
 
-        WorldLearning(
+        LearningTopic(
             name: "Volcano",
             imageName: "volcano",
+            summary: "Understand how volcanoes form and erupt.",
+            description: "Understand how volcanoes form and erupt.",
             learners: "651K learners today",
-            summary: "Understand how volcanoes form and erupt."
+            category: "World Learning"
         )
 
     ]

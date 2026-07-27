@@ -2,8 +2,8 @@ import SwiftUI
 
 struct WorldLearningCard: View {
 
-    let object: WorldLearning
-
+    let object: LearningTopic
+    
     var body: some View {
 
         HStack(spacing: 16) {
@@ -19,8 +19,7 @@ struct WorldLearningCard: View {
                 Text(object.name)
                     .font(.headline)
 
-                Text(object.learners)
-                    .font(.subheadline)
+                Text(object.learners ?? "")                    .font(.subheadline)
                     .foregroundStyle(.secondary)
 
                 Text(object.summary)

@@ -56,7 +56,7 @@ struct TrendingCard: View {
 #Preview {
 
     TrendingCard(
-        object: ExploreData.trendingObjects.first!
+        object: ExploreData.trendingTopics.first!
     )
 
 }

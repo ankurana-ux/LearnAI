@@ -44,7 +44,7 @@ struct DailyCuriosityCard: View {
 #Preview {
 
     DailyCuriosityCard(
-        object: ExploreData.trendingObjects.first!
+        object: ExploreData.trendingTopics.first!
     )
 
 }

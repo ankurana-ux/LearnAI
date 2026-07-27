@@ -4,7 +4,7 @@ struct CategoryDetailView: View {
 
     let category: ExploreCategory
 
-    var items: [CategoryItem] {
+    var items: [LearningTopic] {
         CategoryItemData.items.filter {
             $0.category == category.title
         }

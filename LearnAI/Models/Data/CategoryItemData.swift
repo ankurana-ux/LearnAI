@@ -2,90 +2,99 @@ import Foundation
 
 struct CategoryItemData {
 
-    static let items = [
+    static let items: [LearningTopic] = [
 
         // Animals
 
-        CategoryItem(
-            category: "Animals",
+        LearningTopic(
             name: "Panda",
             imageName: "panda",
             summary: "The bamboo-loving bear.",
-            description: "Giant pandas spend most of their lives eating bamboo and resting in the forests of China."
+            description: "Giant pandas spend most of their lives eating bamboo and resting in the forests of China.",
+            learners: nil,
+            category: "Animals"
         ),
 
-        CategoryItem(
-            category: "Animals",
+        LearningTopic(
             name: "Octopus",
             imageName: "octopus",
             summary: "A master of camouflage.",
-            description: "Octopuses are highly intelligent marine animals capable of changing colour and texture."
+            description: "Octopuses are highly intelligent marine animals capable of changing colour and texture.",
+            learners: nil,
+            category: "Animals"
         ),
 
-        CategoryItem(
-            category: "Animals",
+        LearningTopic(
             name: "Blue Whale",
             imageName: "bluewhale",
             summary: "The largest animal on Earth.",
-            description: "Blue whales are larger than any dinosaur known to have existed."
+            description: "Blue whales are larger than any dinosaur known to have existed.",
+            learners: nil,
+            category: "Animals"
         ),
 
         // Space
 
-        CategoryItem(
-            category: "Space",
+        LearningTopic(
             name: "Saturn",
             imageName: "saturn",
             summary: "The ringed giant.",
-            description: "Saturn is famous for its spectacular rings made of ice and rock."
+            description: "Saturn is famous for its spectacular rings made of ice and rock.",
+            learners: nil,
+            category: "Space"
         ),
 
         // Technology
 
-        CategoryItem(
-            category: "Technology",
+        LearningTopic(
             name: "Tesla Model S",
             imageName: "tesla",
             summary: "Electric performance.",
-            description: "One of the world's best-known electric vehicles."
+            description: "One of the world's best-known electric vehicles.",
+            learners: nil,
+            category: "Technology"
         ),
 
-        CategoryItem(
-            category: "Technology",
+        LearningTopic(
             name: "Humanoid Robot",
             imageName: "robot",
             summary: "Machines built like humans.",
-            description: "Humanoid robots are designed to perform tasks in environments made for people."
+            description: "Humanoid robots are designed to perform tasks in environments made for people.",
+            learners: nil,
+            category: "Technology"
         ),
 
-        // Nature
+        // Plants
 
-        CategoryItem(
-            category: "Plants",
+        LearningTopic(
             name: "Oak Tree",
             imageName: "oak",
             summary: "A symbol of strength.",
-            description: "Oak trees can live for hundreds of years and support thousands of living organisms."
+            description: "Oak trees can live for hundreds of years and support thousands of living organisms.",
+            learners: nil,
+            category: "Plants"
         ),
 
         // Food
 
-        CategoryItem(
-            category: "Food",
+        LearningTopic(
             name: "Avocado",
             imageName: "avocado",
             summary: "A nutrient-rich fruit.",
-            description: "Avocados contain healthy fats, fibre and many vitamins."
+            description: "Avocados contain healthy fats, fibre and many vitamins.",
+            learners: nil,
+            category: "Food"
         ),
 
         // Vehicles
 
-        CategoryItem(
-            category: "Vehicles",
+        LearningTopic(
             name: "Formula 1 Car",
             imageName: "formula1",
             summary: "Built for speed.",
-            description: "Formula One cars are among the fastest racing machines ever built."
+            description: "Formula One cars are among the fastest racing machines ever built.",
+            learners: nil,
+            category: "Vehicles"
         )
 
     ]
