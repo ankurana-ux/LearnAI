@@ -2,7 +2,7 @@ import Foundation
 import CoreVideo
 
 final class AIService {
-
+    
     static let shared = AIService()
 
     private var cache: [String: AIObjectInfo] = [:]
@@ -103,25 +103,51 @@ final class AIService {
 
         return info
     }
-
-    func askQuestion(
-        about object: String,
-        question: String
-    ) async throws -> String {
+    
+    func generateSuggestedQuestions(for object: String) async throws -> [String] {
 
         let prompt = """
-        You are an expert teacher.
+        Generate 4 short follow-up questions about "\(object)".
 
-        The user is asking about: \(object)
+        Return ONLY a valid JSON array of strings.
 
-        Question:
-        \(question)
+        Example:
 
-        Answer in simple, conversational English.
-
-        Keep the answer under 150 words.
-        Do not use Markdown.
+        [
+          "Is it poisonous?",
+          "Where is it commonly found?",
+          "What does it eat?",
+          "Can humans touch it safely?"
+        ]
         """
+        
+        let text = try await generateContent(
+            parts: [
+                [
+                    "text": prompt
+                ]
+            ]
+        )
+
+        let cleaned = cleanJSON(text)
+
+        return try JSONDecoder().decode(
+            [String].self,
+            from: Data(cleaned.utf8)
+        )
+    }
+
+    func askQuestion(
+        about object: DetectedObject,
+        question: String,
+        conversation: [ChatMessage]
+    ) async throws -> String {
+
+        let prompt = GeminiPromptBuilder.questionPrompt(
+            object: object,
+            question: question,
+            conversation: conversation
+        )
 
         return try await generateContent(
             parts: [
@@ -131,6 +157,7 @@ final class AIService {
             ]
         )
     }
+    
     
     // MARK: - Gemini API
 
