@@ -127,7 +127,7 @@ struct ObjectInfoSheet: View {
                         
                         let reply = try await AIService.shared.askQuestion(
                             about: object,
-                            question: question,
+                            question: userQuestion,
                             conversation: messages
                         )
                         
