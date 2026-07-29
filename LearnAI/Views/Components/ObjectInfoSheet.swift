@@ -11,6 +11,9 @@ struct ObjectInfoSheet: View {
     @State private var isAskingAI = false
     @State private var suggestedQuestions: [String] = []
     @State private var isLoadingQuestions = false
+    @State private var lastObjectID: UUID?
+    @State private var chatError: String?
+    @State private var lastQuestion: String?
     
     var body: some View {
         
@@ -43,6 +46,30 @@ struct ObjectInfoSheet: View {
                         messages: messages,
                         isAskingAI: isAskingAI
                     )
+                    if let _ = chatError {
+
+                        HStack {
+
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+
+                            Text("AI couldn't respond")
+
+                            Spacer()
+
+                            Button("Try Again") {
+
+                                guard let lastQuestion else { return }
+
+                                question = lastQuestion
+                                askQuestion()
+                            }
+                            
+                            .buttonStyle(.bordered)
+
+                        }
+                        .padding(.horizontal)
+                    }
                     
                     SuggestedQuestionsView(
                         questions: suggestedQuestions,
@@ -70,8 +97,24 @@ struct ObjectInfoSheet: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
             }
+            
             .task {
                 await loadSuggestedQuestions()
+            }
+            
+            .onChange(of: object.id) { _, newID in
+
+                guard lastObjectID != newID else { return }
+
+                lastObjectID = newID
+
+                messages.removeAll()
+                question = ""
+                suggestedQuestions.removeAll()
+
+                Task {
+                    await loadSuggestedQuestions()
+                }
             }
         }
     }
@@ -110,6 +153,7 @@ struct ObjectInfoSheet: View {
                 Task {
                     
                     let userQuestion = question.trimmingCharacters(in: .whitespacesAndNewlines)
+                    lastQuestion = userQuestion
                     
                     guard !userQuestion.isEmpty else { return }
                     
@@ -122,6 +166,7 @@ struct ObjectInfoSheet: View {
                     
                     question = ""
                     isAskingAI = true
+                    chatError = nil
                     
                     do {
                         
@@ -140,13 +185,15 @@ struct ObjectInfoSheet: View {
                         
                     } catch {
                         
+                        chatError = error.localizedDescription
+
                         messages.append(
                             ChatMessage(
                                 isUser: false,
-                                text: "Sorry, something went wrong."
+                                text: "I couldn't get an answer right now."
                             )
                         )
-                        
+
                     }
                     
                     isAskingAI = false
