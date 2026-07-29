@@ -253,7 +253,6 @@ struct CameraView: View {
                     
                     ObjectInfoSheet(
                         object: object,
-                        pixelBuffer: selectedPixelBuffer,
                         aiInfo: aiInfo,
                         isLoading: isLoadingAI,
                         onLearnMore: { }

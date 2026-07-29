@@ -32,6 +32,7 @@ struct SearchView: View {
         }
 
     }
+    
 
     var body: some View {
         NavigationStack {
@@ -234,7 +235,6 @@ struct SearchView: View {
             .sheet(item: $selectedObject) { object in
                 ObjectInfoSheet(
                     object: object,
-                    pixelBuffer: nil,
                     aiInfo: aiInfo,
                     isLoading: false,
                     onLearnMore: { }

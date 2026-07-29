@@ -3,7 +3,6 @@ import SwiftUI
 struct ObjectInfoSheet: View {
 
     let object: DetectedObject
-    let pixelBuffer: CVPixelBuffer?
     let aiInfo: AIObjectInfo?
     let isLoading: Bool
     let onLearnMore: () -> Void
@@ -122,6 +121,7 @@ struct ObjectInfoSheet: View {
         }
     }
     
+
                 private func loadSuggestedQuestions() async {
 
                     isLoadingQuestions = true
@@ -273,7 +273,6 @@ struct ObjectInfoSheet: View {
             ]
 
         ),
-        pixelBuffer: nil,
 
         aiInfo: nil,
         isLoading: false,

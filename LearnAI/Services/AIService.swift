@@ -170,7 +170,9 @@ final class AIService {
         )!
 
         var request = URLRequest(url: url)
+        
         request.httpMethod = "POST"
+        request.timeoutInterval = 20
         request.setValue(
             "application/json",
             forHTTPHeaderField: "Content-Type"
@@ -257,7 +259,7 @@ final class AIService {
         var request = URLRequest(url: url)
 
         request.httpMethod = "POST"
-
+        request.timeoutInterval = 20
         request.setValue(
             "application/json",
             forHTTPHeaderField: "Content-Type"
