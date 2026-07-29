@@ -29,14 +29,38 @@ struct ChatSectionView: View {
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
 
-                                    MarkdownText(text: message.text)
+                                    if message.text.isEmpty {
+
+                                        HStack(spacing: 4) {
+
+                                            Circle()
+                                                .frame(width: 6, height: 6)
+
+                                            Circle()
+                                                .frame(width: 6, height: 6)
+
+                                            Circle()
+                                                .frame(width: 6, height: 6)
+
+                                        }
                                         .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
-                                        .foregroundStyle(.white)
-                                        .background(Color.accentColor)
+                                        .padding(.vertical, 14)
+                                        .background(.ultraThinMaterial)
                                         .clipShape(
                                             RoundedRectangle(cornerRadius: 22)
                                         )
+
+                                    } else {
+
+                                        MarkdownText(text: message.text)
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                            .background(.ultraThinMaterial)
+                                            .clipShape(
+                                                RoundedRectangle(cornerRadius: 22)
+                                            )
+
+                                    }
 
                                 }
 
@@ -72,25 +96,6 @@ struct ChatSectionView: View {
                         }
                         .id(message.id)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
-
-                    }
-
-                    if isAskingAI {
-
-                        HStack {
-
-                            Image(systemName: "sparkles")
-                                .foregroundStyle(.blue)
-
-                            ProgressView()
-
-                            Text("LearnAI is thinking...")
-                                .foregroundStyle(.secondary)
-
-                            Spacer()
-
-                        }
-                        .padding(.horizontal)
 
                     }
 

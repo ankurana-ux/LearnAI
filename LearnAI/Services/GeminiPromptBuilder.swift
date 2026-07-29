@@ -78,4 +78,39 @@ enum GeminiPromptBuilder {
         Keep the response concise but informative.
         """
     }
+    
+    static func streamingQuestionPrompt(
+        object: DetectedObject,
+        question: String,
+        conversation: [ChatMessage]
+    ) -> String {
+
+        let history = conversation.map {
+            "\($0.isUser ? "User" : "AI"): \($0.text)"
+        }
+        .joined(separator: "\n")
+
+        return """
+        You are LearnAI, an expert teacher.
+
+        Object:
+        \(object.name)
+
+        Category:
+        \(object.category)
+
+        Summary:
+        \(object.shortSummary)
+
+        Previous conversation:
+        \(history)
+
+        User question:
+        \(question)
+
+        Answer clearly and conversationally.
+        Keep it under 150 words.
+        """
+    }
+    
 }

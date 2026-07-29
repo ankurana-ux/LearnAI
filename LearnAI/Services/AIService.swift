@@ -244,6 +244,92 @@ final class AIService {
 
         return text
     }
+    
+    func streamContent(
+        parts: [[String: Any]],
+        onChunk: @escaping (String) -> Void
+    ) async throws {
+
+        let url = URL(
+            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?key=\(apiKey)"
+        )!
+
+        var request = URLRequest(url: url)
+
+        request.httpMethod = "POST"
+
+        request.setValue(
+            "application/json",
+            forHTTPHeaderField: "Content-Type"
+        )
+
+        let body: [String: Any] = [
+            "contents": [
+                [
+                    "parts": parts
+                ]
+            ]
+        ]
+
+        request.httpBody = try JSONSerialization.data(
+            withJSONObject: body
+        )
+
+        let (bytes, response) = try await retryRequest {
+            try await URLSession.shared.bytes(
+                for: request
+            )
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode)
+        else {
+            throw URLError(.badServerResponse)
+        }
+
+        for try await line in bytes.lines {
+
+            guard !line.isEmpty else { continue }
+
+            if let data = line.data(using: .utf8),
+               let decoded = try? JSONDecoder()
+                .decode(GenerateContentResponse.self, from: data),
+               let text = decoded
+                .candidates
+                .first?
+                .content
+                .parts
+                .first?
+                .text {
+
+                onChunk(text)
+            }
+        }
+    }
+    
+    private func retryRequest(
+        attempts: Int = 2,
+        operation: () async throws -> (URLSession.AsyncBytes, URLResponse)
+    ) async throws -> (URLSession.AsyncBytes, URLResponse) {
+
+        var lastError: Error?
+
+        for _ in 0..<attempts {
+
+            do {
+                return try await operation()
+            } catch {
+
+                lastError = error
+
+                try await Task.sleep(
+                    nanoseconds: 1_000_000_000
+                )
+            }
+        }
+
+        throw lastError ?? URLError(.unknown)
+    }
 
     // MARK: - Helpers
 

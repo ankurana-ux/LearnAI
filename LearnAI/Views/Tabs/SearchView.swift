@@ -234,6 +234,7 @@ struct SearchView: View {
             .sheet(item: $selectedObject) { object in
                 ObjectInfoSheet(
                     object: object,
+                    pixelBuffer: nil,
                     aiInfo: aiInfo,
                     isLoading: false,
                     onLearnMore: { }

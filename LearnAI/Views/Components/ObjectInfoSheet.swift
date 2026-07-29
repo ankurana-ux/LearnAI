@@ -3,6 +3,7 @@ import SwiftUI
 struct ObjectInfoSheet: View {
 
     let object: DetectedObject
+    let pixelBuffer: CVPixelBuffer?
     let aiInfo: AIObjectInfo?
     let isLoading: Bool
     let onLearnMore: () -> Void
@@ -14,6 +15,7 @@ struct ObjectInfoSheet: View {
     @State private var lastObjectID: UUID?
     @State private var chatError: String?
     @State private var lastQuestion: String?
+    
     
     var body: some View {
         
@@ -84,7 +86,8 @@ struct ObjectInfoSheet: View {
                         isLoading: isAskingAI,
                         onSend: askQuestion
                     )
-                    
+ 
+                    .buttonStyle(.borderedProminent)
                     LearnMoreButton(
                         aiInfo: aiInfo,
                         isLoading: isLoading
@@ -163,6 +166,13 @@ struct ObjectInfoSheet: View {
                             text: userQuestion
                         )
                     )
+
+//                    messages.append(
+//                        ChatMessage(
+//                            isUser: false,
+//                            text: ""
+//                        )
+//                    )
                     
                     question = ""
                     isAskingAI = true
@@ -170,18 +180,41 @@ struct ObjectInfoSheet: View {
                     
                     do {
                         
-                        let reply = try await AIService.shared.askQuestion(
-                            about: object,
+                        let aiMessageID = UUID()
+
+                        messages.append(
+                            ChatMessage(
+                                id: aiMessageID,
+                                isUser: false,
+                                text: ""
+                            )
+                        )
+
+                        let prompt = GeminiPromptBuilder.streamingQuestionPrompt(
+                            object: object,
                             question: userQuestion,
                             conversation: messages
                         )
-                        
-                        messages.append(
-                            ChatMessage(
-                                isUser: false,
-                                text: reply
-                            )
-                        )
+
+                        try await AIService.shared.streamContent(
+                            parts: [
+                                [
+                                    "text": prompt
+                                ]
+                            ]
+                        ) { chunk in
+
+                            Task { @MainActor in
+
+                                if let index = messages.firstIndex(
+                                    where: { $0.id == aiMessageID }
+                                ) {
+                                    messages[index].text += chunk
+                                }
+
+                            }
+
+                        }
                         
                     } catch {
                         
@@ -240,6 +273,7 @@ struct ObjectInfoSheet: View {
             ]
 
         ),
+        pixelBuffer: nil,
 
         aiInfo: nil,
         isLoading: false,

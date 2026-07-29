@@ -9,6 +9,7 @@ struct CameraView: View {
     @State private var selectedObject: DetectedObject?
     @StateObject private var history = HistoryService.shared
     @State private var isProcessingDetection = false
+    @State private var selectedPixelBuffer: CVPixelBuffer?
     
     
     private func handleDetection(
@@ -21,7 +22,8 @@ struct CameraView: View {
         }
 
         isProcessingDetection = true
-
+        selectedPixelBuffer = pixelBuffer
+        
         currentHistoryID = HistoryService.shared.save(
             object: object,
             pixelBuffer: pixelBuffer
@@ -251,6 +253,7 @@ struct CameraView: View {
                     
                     ObjectInfoSheet(
                         object: object,
+                        pixelBuffer: selectedPixelBuffer,
                         aiInfo: aiInfo,
                         isLoading: isLoadingAI,
                         onLearnMore: { }
