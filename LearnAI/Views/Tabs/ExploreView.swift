@@ -1,8 +1,14 @@
 import SwiftUI
 
 struct ExploreView: View {
-
+    
+    @State private var dailyCuriosity: LearningTopic?
+    @State private var isLoadingCuriosity = false
     @StateObject private var history = HistoryService.shared
+    @State private var worldLearningTopics: [LearningTopic] = []
+    @State private var isLoadingWorldLearning = false
+    @State private var trendingTopics: [LearningTopic] = []
+    @State private var isLoadingTrending = false
 
     let categories = ExploreData.categories
 
@@ -11,7 +17,126 @@ struct ExploreView: View {
         GridItem(.flexible())
     ]
 
-    let trendingTopics = ExploreData.trendingTopics
+
+    private func loadWorldLearning() {
+
+        Task {
+
+            isLoadingWorldLearning = true
+
+            do {
+
+                let topics = try await WorldLearningService.shared.fetchTopics()
+
+                await MainActor.run {
+
+                    worldLearningTopics = topics
+                    isLoadingWorldLearning = false
+
+                }
+
+            } catch {
+
+                print("World Learning failed:", error)
+
+                await MainActor.run {
+
+                    isLoadingWorldLearning = false
+
+                }
+
+            }
+
+        }
+
+    }
+    
+    private func loadTrending() {
+
+        Task {
+
+            isLoadingTrending = true
+
+            do {
+
+                let topics = try await TrendingService.shared.fetchTrending()
+
+                await MainActor.run {
+
+                    trendingTopics = topics
+                    isLoadingTrending = false
+
+                }
+
+            } catch {
+
+                print("❌ Trending failed:", error.localizedDescription)
+
+                await MainActor.run {
+
+                    isLoadingTrending = false
+
+                }
+
+            }
+
+        }
+
+    }
+
+    private func loadDailyCuriosity() {
+
+        if DailyCuriosityCache.shared.isToday(),
+           let cached = DailyCuriosityCache.shared.load() {
+
+            dailyCuriosity = cached
+            return
+        }
+
+
+        Task {
+
+            isLoadingCuriosity = true
+
+            do {
+
+                let result = try await ExploreAIService.shared.generateDailyCuriosity(
+                    history: HistoryService.shared.history
+                )
+
+
+                DailyCuriosityCache.shared.save(result)
+                DailyCuriosityCache.shared.saveDate()
+
+
+                await MainActor.run {
+
+                    dailyCuriosity = result
+                    isLoadingCuriosity = false
+
+                }
+
+
+            } catch {
+
+                print(
+                    "❌ Daily Curiosity failed:",
+                    error.localizedDescription
+                )
+
+
+                await MainActor.run {
+
+                    isLoadingCuriosity = false
+
+                }
+
+            }
+
+        }
+
+    }
+
 
     var body: some View {
 
@@ -21,20 +146,31 @@ struct ExploreView: View {
 
                 VStack(spacing: 32) {
 
-                    NavigationLink {
 
-                        TrendingDetailView(
-                            object: ExploreData.dailyTopic
-                        )
+                    if let curiosity = dailyCuriosity {
 
-                    } label: {
+                        NavigationLink {
 
-                        DailyCuriosityCard(
-                            object: ExploreData.dailyTopic
-                        )
+                            TrendingDetailView(
+                                object: curiosity
+                            )
+
+                        } label: {
+
+                            DailyCuriosityCard(
+                                object: curiosity
+                            )
+
+                        }
+                        .buttonStyle(.plain)
+
+                    } else {
+
+                        ProgressView("Creating today's curiosity...")
+                            .padding()
 
                     }
-                    .buttonStyle(.plain)
+
 
                     VStack(alignment: .leading, spacing: 16) {
 
@@ -47,21 +183,28 @@ struct ExploreView: View {
 
                             HStack(spacing: 16) {
 
-                                ForEach(WorldLearningData.objects) { object in
+                                if isLoadingWorldLearning {
 
-                                    NavigationLink {
+                                    ProgressView("Discovering what the world is learning...")
 
-                                        TrendingDetailView(
-                                            object: object
-                                        )
+                                } else {
 
-                                    } label: {
+                                    ForEach(worldLearningTopics) { object in
 
-                                        WorldLearningCard(object: object)
-                                            .frame(width: 320)
+                                        NavigationLink {
+
+                                            TrendingDetailView(
+                                                object: object
+                                            )
+
+                                        } label: {
+
+                                            WorldLearningCard(object: object)
+                                                .frame(width: 320)
+
+                                        }
 
                                     }
-                                    .buttonStyle(.plain)
 
                                 }
 
@@ -71,6 +214,7 @@ struct ExploreView: View {
                         }
 
                     }
+
 
                     ExploreSection(
                         title: "Trending Today",
@@ -103,6 +247,7 @@ struct ExploreView: View {
 
                     }
 
+
                     ExploreSection(
                         title: "Categories",
                         systemImage: "square.grid.2x2.fill"
@@ -133,85 +278,41 @@ struct ExploreView: View {
 
                     }
 
-                    ExploreSection(
-                        title: "Continue Learning",
-                        systemImage: "book.fill"
-                    ) {
-
-                        if history.history.isEmpty {
-
-                            ContentUnavailableView(
-                                "Nothing Yet",
-                                systemImage: "book.closed",
-                                description: Text("Scan objects to build your learning library.")
-                            )
-                            .padding(.horizontal)
-
-                        } else {
-
-                            VStack(spacing: 16) {
-
-                                ForEach(history.history.prefix(5)) { item in
-
-                                    NavigationLink {
-
-                                        Text(item.name)
-                                            .navigationTitle(item.name)
-
-                                    } label: {
-
-                                        HStack {
-
-                                            Image(systemName: "book.fill")
-                                                .font(.title2)
-                                                .foregroundStyle(.blue)
-
-                                            VStack(alignment: .leading) {
-
-                                                Text(item.name)
-                                                    .font(.headline)
-
-                                                Text(item.date.formatted(date: .abbreviated, time: .omitted))
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-
-                                            }
-
-                                            Spacer()
-
-                                            Image(systemName: "chevron.right")
-                                                .foregroundStyle(.secondary)
-
-                                        }
-                                        .padding()
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(
-                                            RoundedRectangle(cornerRadius: 18)
-                                        )
-
-                                    }
-
-                                }
-
-                            }
-                            .padding(.horizontal)
-
-                        }
-
-                    }
-
                 }
                 .padding(.vertical)
 
             }
             .navigationTitle("Explore")
+            .onAppear {
+
+                if dailyCuriosity == nil {
+
+                    loadDailyCuriosity()
+
+                }
+                if worldLearningTopics.isEmpty {
+
+                    loadWorldLearning()
+
+                }
+                if trendingTopics.isEmpty {
+
+                    loadTrending()
+
+                }
+
+            }
 
         }
 
     }
+    
 
 }
 
+
 #Preview {
+
     ExploreView()
+
 }

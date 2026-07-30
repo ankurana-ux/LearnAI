@@ -104,6 +104,19 @@ final class AIService {
         return info
     }
     
+    func generateExploreContent(
+        prompt: String
+    ) async throws -> String {
+
+        return try await generateContent(
+            parts: [
+                [
+                    "text": prompt
+                ]
+            ]
+        )
+    }
+    
     func generateSuggestedQuestions(for object: String) async throws -> [String] {
 
         let prompt = """

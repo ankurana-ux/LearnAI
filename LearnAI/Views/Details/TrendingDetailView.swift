@@ -11,8 +11,7 @@ struct TrendingDetailView: View {
         ScrollView {
 
             VStack(alignment: .leading, spacing: 24) {
-                Image(object.imageName)
-                    .resizable()
+                Image(systemName: "photo")                    .resizable()
                     .scaledToFill()
                     .frame(height: 250)
                 .frame(height: 250)

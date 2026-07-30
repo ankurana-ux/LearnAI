@@ -1,25 +1,64 @@
 import SwiftUI
 
 struct CategoryDetailView: View {
-
+    
     let category: ExploreCategory
-
-    var items: [LearningTopic] {
-        CategoryItemData.items.filter {
-            $0.category == category.title
-        }
-    }
+    
+    @State private var items: [LearningTopic] = []
+    @State private var isLoading = false
 
     let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
+    
+    private func loadCategoryItems() {
+
+        Task {
+
+            isLoading = true
+
+            do {
+
+                let result = try await CategoryService.shared.fetchCategoryItems(
+                    category: category.title
+                )
+
+                await MainActor.run {
+
+                    items = result
+                    isLoading = false
+
+                }
+
+            } catch {
+
+                print(
+                    "❌ Category loading failed:",
+                    error.localizedDescription
+                )
+
+                await MainActor.run {
+
+                    isLoading = false
+
+                }
+
+            }
+
+        }
+
+    }
 
     var body: some View {
 
         Group {
 
-            if items.isEmpty {
+            if isLoading {
+
+                ProgressView("Discovering \(category.title)...")
+
+            } else if items.isEmpty {
 
                 ContentUnavailableView(
                     "Coming Soon",
@@ -38,31 +77,24 @@ struct CategoryDetailView: View {
                             NavigationLink {
 
                                 TrendingDetailView(
-                                    object: LearningTopic(
-                                        name: item.name,
-                                        imageName: item.imageName,
-                                        summary: item.summary,
-                                        description: item.description,
-                                        learners: nil,
-                                        category: item.category
-                                    )
+                                    object: item
                                 )
 
                             } label: {
 
                                 VStack(alignment: .leading, spacing: 12) {
 
-                                    Image(item.imageName)
-                                        .resizable()
-                                        .scaledToFill()
+                                    CategoryTopicImage(topic: item)
                                         .frame(height: 140)
                                         .frame(maxWidth: .infinity)
                                         .clipShape(
                                             RoundedRectangle(cornerRadius: 16)
                                         )
 
+
                                     Text(item.name)
                                         .font(.headline)
+
 
                                     Text(item.summary)
                                         .font(.caption)
@@ -91,10 +123,20 @@ struct CategoryDetailView: View {
         }
         .navigationTitle(category.title)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+
+            if items.isEmpty {
+
+                loadCategoryItems()
+
+            }
+
+        }
 
     }
-
+    
 }
+
 
 #Preview {
 

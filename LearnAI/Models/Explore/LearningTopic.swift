@@ -1,11 +1,11 @@
 import Foundation
 
-struct LearningTopic: Identifiable {
+struct LearningTopic: Identifiable, Codable {
 
     let id = UUID()
 
     let name: String
-    let imageName: String
+    var imageURL: String?
     let summary: String
     let description: String
 
@@ -13,3 +13,5 @@ struct LearningTopic: Identifiable {
     var category: String? = nil
 
 }
+
+

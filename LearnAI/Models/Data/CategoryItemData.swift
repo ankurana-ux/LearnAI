@@ -8,7 +8,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Panda",
-            imageName: "panda",
+            imageURL: nil,
             summary: "The bamboo-loving bear.",
             description: "Giant pandas spend most of their lives eating bamboo and resting in the forests of China.",
             learners: nil,
@@ -17,7 +17,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Octopus",
-            imageName: "octopus",
+            imageURL: nil,
             summary: "A master of camouflage.",
             description: "Octopuses are highly intelligent marine animals capable of changing colour and texture.",
             learners: nil,
@@ -26,7 +26,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Blue Whale",
-            imageName: "bluewhale",
+            imageURL: nil,
             summary: "The largest animal on Earth.",
             description: "Blue whales are larger than any dinosaur known to have existed.",
             learners: nil,
@@ -37,7 +37,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Saturn",
-            imageName: "saturn",
+            imageURL: nil,
             summary: "The ringed giant.",
             description: "Saturn is famous for its spectacular rings made of ice and rock.",
             learners: nil,
@@ -48,7 +48,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Tesla Model S",
-            imageName: "tesla",
+            imageURL: nil,
             summary: "Electric performance.",
             description: "One of the world's best-known electric vehicles.",
             learners: nil,
@@ -57,7 +57,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Humanoid Robot",
-            imageName: "robot",
+            imageURL: nil,
             summary: "Machines built like humans.",
             description: "Humanoid robots are designed to perform tasks in environments made for people.",
             learners: nil,
@@ -68,7 +68,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Oak Tree",
-            imageName: "oak",
+            imageURL: nil,
             summary: "A symbol of strength.",
             description: "Oak trees can live for hundreds of years and support thousands of living organisms.",
             learners: nil,
@@ -79,7 +79,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Avocado",
-            imageName: "avocado",
+            imageURL: nil,
             summary: "A nutrient-rich fruit.",
             description: "Avocados contain healthy fats, fibre and many vitamins.",
             learners: nil,
@@ -90,7 +90,7 @@ struct CategoryItemData {
 
         LearningTopic(
             name: "Formula 1 Car",
-            imageName: "formula1",
+            imageURL: nil,
             summary: "Built for speed.",
             description: "Formula One cars are among the fastest racing machines ever built.",
             learners: nil,
