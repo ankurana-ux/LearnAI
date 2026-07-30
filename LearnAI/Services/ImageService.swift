@@ -9,6 +9,8 @@ final class ImageService {
     func fetchImageURL(
         for topic: String
     ) async throws -> String? {
+        
+        print("🔍 Searching image for:", topic)
 
         let encodedTopic = topic.addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed
@@ -29,6 +31,7 @@ final class ImageService {
             WikimediaResponse.self,
             from: data
         )
+        print("🖼️ Result URL:", result.query?.pages.values.first?.imageinfo?.first?.url ?? "nil")
 
         return result.query?.pages.values.first?.imageinfo?.first?.url
     }

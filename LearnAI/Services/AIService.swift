@@ -204,9 +204,50 @@ final class AIService {
         )
         
 
-        let (data, response) = try await URLSession.shared.data(
-            for: request
-        )
+        var data: Data = Data()
+        var response: URLResponse?
+
+        for attempt in 1...3 {
+
+            do {
+
+                (data, response) = try await URLSession.shared.data(
+                    for: request
+                )
+
+                if let http = response as? HTTPURLResponse,
+                   http.statusCode == 503,
+                   attempt < 3 {
+
+                    print("⚠️ Gemini busy. Retrying (\(attempt)/3)...")
+
+                    try await Task.sleep(
+                        for: .seconds(Double(attempt * 2))
+                    )
+
+                    continue
+
+                }
+
+                break
+
+            } catch {
+
+                if attempt == 3 {
+
+                    throw error
+
+                }
+
+                print("⚠️ Network error. Retrying (\(attempt)/3)...")
+
+                try await Task.sleep(
+                    for: .seconds(Double(attempt * 2))
+                )
+
+            }
+
+        }
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw URLError(.badServerResponse)

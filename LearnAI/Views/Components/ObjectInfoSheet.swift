@@ -4,6 +4,7 @@ struct ObjectInfoSheet: View {
 
     let object: DetectedObject
     let aiInfo: AIObjectInfo?
+    let imageData: Data?
     let isLoading: Bool
     let onLearnMore: () -> Void
     @State private var question = ""
@@ -14,13 +15,59 @@ struct ObjectInfoSheet: View {
     @State private var lastObjectID: UUID?
     @State private var chatError: String?
     @State private var lastQuestion: String?
-    
+    @StateObject private var imageLoader = RemoteImageLoader()
     
     var body: some View {
         
         ScrollViewReader { proxy in
             
             ScrollView {
+                
+                if let imageData,
+                   let uiImage = UIImage(data: imageData) {
+
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 240)
+                        .frame(maxWidth: .infinity)
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 20)
+                        )
+                        .padding(.horizontal)
+
+                } else if let urlString = imageLoader.imageURL,
+                          let url = URL(string: urlString) {
+
+                    AsyncImage(url: url) { image in
+
+                        image
+                            .resizable()
+                            .scaledToFill()
+
+                    } placeholder: {
+
+                        ProgressView()
+
+                    }
+                    .frame(height: 240)
+                    .frame(maxWidth: .infinity)
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: 20)
+                    )
+                    .padding(.horizontal)
+
+                } else {
+
+                    Image(systemName: "photo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 120)
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal)
+
+                }
                 
                 VStack(alignment: .leading, spacing: 24) {
                     
@@ -104,6 +151,18 @@ struct ObjectInfoSheet: View {
                 await loadSuggestedQuestions()
             }
             
+            .onAppear {
+
+                guard imageData == nil else {
+                    return
+                }
+
+                imageLoader.load(
+                    topic: object.name
+                )
+
+            }
+            
             .onChange(of: object.id) { _, newID in
 
                 guard lastObjectID != newID else { return }
@@ -166,13 +225,6 @@ struct ObjectInfoSheet: View {
                             text: userQuestion
                         )
                     )
-
-//                    messages.append(
-//                        ChatMessage(
-//                            isUser: false,
-//                            text: ""
-//                        )
-//                    )
                     
                     question = ""
                     isAskingAI = true
@@ -233,7 +285,7 @@ struct ObjectInfoSheet: View {
                 }
                 
             }
-
+    
         }
 
 
@@ -275,8 +327,9 @@ struct ObjectInfoSheet: View {
         ),
 
         aiInfo: nil,
+        imageData: nil,
         isLoading: false,
-        onLearnMore: {}
+        onLearnMore: { }
 
     )
 

@@ -2,11 +2,9 @@ import SwiftUI
 
 struct SearchView: View {
     @State private var query = ""
-    @State private var recentSearches: [String] = [
-        "MacBook Air",
-        "Golden Retriever",
-        "Saturn"
-    ]
+    @State private var submittedQuery = ""
+    @State private var recentSearches: [String] = []
+    @State private var hasSubmittedSearch = false
 
     private let suggestions = [
         "Why is the sky blue?",
@@ -17,6 +15,7 @@ struct SearchView: View {
         "Why do cats purr?"
     ]
     @State private var aiInfo: AIObjectInfo?
+    @State private var imageData: Data?
     @State private var isLoading = false
     @State private var showError = false
     @State private var errorMessage = ""
@@ -37,7 +36,19 @@ struct SearchView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                TextField("Ask anything...", text: $query)
+                TextField(
+                    "Ask anything...",
+                    text: $query
+                )
+                .submitLabel(.search)
+                .onSubmit {
+
+                    submittedQuery = query.trimmingCharacters(
+                        in: .whitespacesAndNewlines
+                    )
+
+                    hasSubmittedSearch = true
+                }
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal)
                 
@@ -56,7 +67,8 @@ struct SearchView: View {
                                     Button {
 
                                         query = item
-
+                                        submittedQuery = item
+                                        
                                     } label: {
 
                                         HStack {
@@ -85,7 +97,8 @@ struct SearchView: View {
                                     Button {
 
                                         query = question
-
+                                        submittedQuery = question
+                                        
                                     } label: {
 
                                         HStack(alignment: .top) {
@@ -110,85 +123,87 @@ struct SearchView: View {
 
                     }
 
-                } else if filteredHistory.isEmpty {
+                } else if hasSubmittedSearch && filteredHistory.isEmpty {
+                    
+                    ProgressView("Searching with AI...")
+                    
+                        .task(id: submittedQuery)  {
 
-                    VStack(spacing: 24) {
+                            guard selectedObject == nil else { return }
 
-                        Spacer()
+                            isLoading = true
 
-                        ContentUnavailableView(
-                            "No Library Results",
-                            systemImage: "tray",
-                            description: Text("Nothing in your library matches \"\(query)\".")
-                        )
+                            defer {
 
-                        Button {
-
-                            Task {
-
-                                isLoading = true
-
-                                defer {
-                                    Task { @MainActor in
-                                        isLoading = false
-                                    }
-                                }
-
-                                do {
-
-                                    let info = try await AIService.shared.fetchInfo(for: query)
-
-                                    await MainActor.run {
-
-                                        aiInfo = info
-
-                                        selectedObject = DetectedObject(
-                                            name: info.name,
-                                            category: "AI Search",
-                                            shortSummary: info.summary,
-                                            detailedSummary: info.history,
-                                            confidence: 1.0,
-                                            icon: "sparkles",
-                                            facts: []
-                                        )
-
-                                        if !recentSearches.contains(query) {
-                                            recentSearches.insert(query, at: 0)
-                                        }
-
-                                    }
-
-                                } catch {
-
-                                    await MainActor.run {
-
-                                        errorMessage = error.localizedDescription
-                                        showError = true
-
-                                    }
-
+                                Task { @MainActor in
+                                    isLoading = false
                                 }
 
                             }
 
-                        } label: {
+                            do {
 
-                            if isLoading {
+                                let info = try await AIService.shared.fetchInfo(
+                                    for: submittedQuery
+                                )
+                                
+//                                var imageData: Data?
 
-                                ProgressView()
+                                if let imageURL = try? await ImageService.shared.fetchImageURL(
+                                    for: info.name
+                                ),
+                                let url = URL(string: imageURL) {
 
-                            } else {
+                                    do {
 
-                                Label("Search with AI", systemImage: "sparkles")
+                                        let (data, _) = try await URLSession.shared.data(
+                                            from: url
+                                        )
+
+                                        imageData = data
+
+                                    } catch {
+
+                                        print("❌ Failed to download image:", error.localizedDescription)
+
+                                    }
+
+                                }
+
+                                await MainActor.run {
+                                    aiInfo = info
+
+                                    HistoryService.shared.addRecentSearch(submittedQuery)
+                                    HistoryService.shared.saveAIResult(
+                                        info,
+                                        imageData: imageData
+                                    )
+
+                                    selectedObject = DetectedObject(
+                                        name: info.name,
+                                        category: "AI Search",
+                                        shortSummary: info.summary,
+                                        detailedSummary: info.history,
+                                        confidence: 1.0,
+                                        icon: "sparkles",
+                                        facts: []
+                                    )
+
+                                }
+
+                            } catch {
+
+                                await MainActor.run {
+
+                                    errorMessage = error.localizedDescription
+                                    showError = true
+
+                                }
 
                             }
 
                         }
-                        .buttonStyle(.borderedProminent)
 
-                        Spacer()
-
-                    }
                 } else {
                     List {
                         ForEach(filteredHistory) { item in
@@ -232,13 +247,27 @@ struct SearchView: View {
                 }
             }
             .navigationTitle("Discover")
-            .sheet(item: $selectedObject) { object in
+            .onAppear {
+
+                recentSearches = HistoryService.shared.recentSearches
+
+            }
+            .sheet(item: $selectedObject, onDismiss: {
+
+                selectedObject = nil
+                aiInfo = nil
+                imageData = nil
+
+            }) { object in
+
                 ObjectInfoSheet(
                     object: object,
                     aiInfo: aiInfo,
+                    imageData: imageData,
                     isLoading: false,
                     onLearnMore: { }
                 )
+
             }.alert("Search Failed", isPresented: $showError) {
                 
                 Button("OK", role: .cancel) { }

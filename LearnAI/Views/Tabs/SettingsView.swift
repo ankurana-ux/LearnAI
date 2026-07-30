@@ -29,7 +29,7 @@ struct SettingsView: View {
 
                 }
 
-                Section("About") {
+                 Section("About") {
 
                     LabeledContent("Version", value: "1.0")
 

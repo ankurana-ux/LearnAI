@@ -19,6 +19,8 @@ final class RemoteImageLoader: ObservableObject {
                     for: topic
                 )
 
+                print("🖼️ Image URL:", url ?? "nil")
+
                 imageURL = url
 
             } catch {

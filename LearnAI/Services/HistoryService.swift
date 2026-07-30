@@ -160,6 +160,105 @@ final class HistoryService: ObservableObject {
         history = items
 
     }
+    
+    func saveSearch(_ query: String) {
 
+        let cleanQuery = query.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
+        guard !cleanQuery.isEmpty else {
+            return
+        }
+
+        UserDefaults.standard.set(
+            cleanQuery,
+            forKey: "last_search"
+        )
+
+    }
+    
+    var recentSearches: [String] {
+
+        UserDefaults.standard
+            .stringArray(
+                forKey: "recent_searches"
+            ) ?? []
+
+    }
+    
+    func addRecentSearch(_ query: String) {
+
+        let cleanQuery = query.trimmingCharacters(
+            in: .whitespacesAndNewlines
+        )
+
+        guard !cleanQuery.isEmpty else {
+            return
+        }
+
+
+        var searches = recentSearches
+
+
+        searches.removeAll {
+            $0.lowercased() == cleanQuery.lowercased()
+        }
+
+
+        searches.insert(
+            cleanQuery,
+            at: 0
+        )
+
+
+        if searches.count > 10 {
+
+            searches = Array(
+                searches.prefix(10)
+            )
+
+        }
+
+
+        UserDefaults.standard.set(
+            searches,
+            forKey: "recent_searches"
+        )
+
+    }
+
+    func saveAIResult(
+        _ info: AIObjectInfo,
+        imageData: Data?
+    ) {
+
+        let item = ScanHistory(
+            name: info.name,
+            confidence: 1.0,
+            date: Date(),
+            isFavorite: false,
+            imageData: imageData,
+            aiInfo: StoredAIInfo(
+                summary: info.summary,
+                history: info.history,
+                uses: info.uses,
+                funFacts: info.funFacts,
+                safety: info.safety
+            )
+        )
+
+        history.removeAll {
+            $0.name.lowercased() == info.name.lowercased()
+        }
+
+        history.insert(
+            item,
+            at: 0
+        )
+
+        persist()
+
+    }
 }
     

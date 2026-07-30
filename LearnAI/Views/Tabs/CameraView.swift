@@ -254,6 +254,7 @@ struct CameraView: View {
                     ObjectInfoSheet(
                         object: object,
                         aiInfo: aiInfo,
+                        imageData: nil,
                         isLoading: isLoadingAI,
                         onLearnMore: { }
                     )
