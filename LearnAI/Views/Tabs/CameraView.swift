@@ -28,6 +28,7 @@ struct CameraView: View {
             object: object,
             pixelBuffer: pixelBuffer
         )
+        LearningProfileService.shared.scanCompleted()
 
         Task {
 

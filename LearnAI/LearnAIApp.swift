@@ -8,6 +8,8 @@ struct LearnAIApp: App {
 
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.light)
+
         }
         .modelContainer(
             for: [

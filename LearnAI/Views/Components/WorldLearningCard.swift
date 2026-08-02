@@ -78,7 +78,6 @@ struct WorldLearningCard: View {
     }
 }
 
-
 #Preview {
 
     WorldLearningCard(

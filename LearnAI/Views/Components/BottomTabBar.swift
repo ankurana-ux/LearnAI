@@ -1,10 +1,13 @@
 import SwiftUI
 
 enum AppTab {
-    case lens
-    case history
-    case saved
-    case settings
+
+    case explore
+    case library
+    case scan
+    case search
+    case profile
+
 }
 
 struct BottomTabBar: View {
@@ -15,13 +18,44 @@ struct BottomTabBar: View {
 
         HStack {
 
-            tabButton(.lens, "camera.viewfinder")
+            tabButton(
+                .explore,
+                defaultIcon: "home_default",
+                activeIcon: "home_active"
+            )
+
             Spacer()
-            tabButton(.history, "clock")
+
+            tabButton(
+                .library,
+                defaultIcon: "library_default",
+                activeIcon: "library_active",
+                
+            )
+
             Spacer()
-            tabButton(.saved, "heart")
+
+            tabButton(
+                .scan,
+                defaultIcon: "scan_default",
+                activeIcon: "scan_active"
+            )
+
             Spacer()
-            tabButton(.settings, "gearshape")
+
+            tabButton(
+                .search,
+                defaultIcon: "search_default",
+                activeIcon: "search_active"
+            )
+
+            Spacer()
+
+            tabButton(
+                .profile,
+                defaultIcon: "profile_default",
+                activeIcon: "profile_active"
+            )
 
         }
         .padding(.horizontal, 30)
@@ -29,10 +63,15 @@ struct BottomTabBar: View {
         .background(.ultraThinMaterial)
         .clipShape(Capsule())
         .padding()
+
     }
 
     @ViewBuilder
-    private func tabButton(_ tab: AppTab, _ icon: String) -> some View {
+    private func tabButton(
+        _ tab: AppTab,
+        defaultIcon: String,
+        activeIcon: String
+    ) -> some View {
 
         Button {
 
@@ -40,17 +79,22 @@ struct BottomTabBar: View {
 
         } label: {
 
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(selectedTab == tab ? .blue : .white)
+            Image(selectedTab == tab ? activeIcon : defaultIcon)
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 28, height: 28)
 
         }
 
     }
+
 }
 
 #Preview {
 
-    BottomTabBar(selectedTab: .constant(.lens))
+    BottomTabBar(
+        selectedTab: .constant(.scan)
+    )
 
 }

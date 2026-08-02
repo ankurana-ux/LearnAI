@@ -2,141 +2,14 @@ import SwiftUI
 
 struct ExploreView: View {
     
-    @State private var dailyCuriosity: LearningTopic?
-    @State private var isLoadingCuriosity = false
     @StateObject private var history = HistoryService.shared
-    @State private var worldLearningTopics: [LearningTopic] = []
-    @State private var isLoadingWorldLearning = false
-    @State private var trendingTopics: [LearningTopic] = []
-    @State private var isLoadingTrending = false
-
+    
     let categories = ExploreData.categories
 
     let columns = [
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
-
-
-    private func loadWorldLearning() {
-
-        Task {
-
-            isLoadingWorldLearning = true
-
-            do {
-
-                let topics = try await WorldLearningService.shared.fetchTopics()
-
-                await MainActor.run {
-
-                    worldLearningTopics = topics
-                    isLoadingWorldLearning = false
-
-                }
-
-            } catch {
-
-                print("World Learning failed:", error)
-
-                await MainActor.run {
-
-                    isLoadingWorldLearning = false
-
-                }
-
-            }
-
-        }
-
-    }
-    
-    private func loadTrending() {
-
-        Task {
-
-            isLoadingTrending = true
-
-            do {
-
-                let topics = try await TrendingService.shared.fetchTrending()
-
-                await MainActor.run {
-
-                    trendingTopics = topics
-                    isLoadingTrending = false
-
-                }
-
-            } catch {
-
-                print("❌ Trending failed:", error.localizedDescription)
-
-                await MainActor.run {
-
-                    isLoadingTrending = false
-
-                }
-
-            }
-
-        }
-
-    }
-
-    private func loadDailyCuriosity() {
-
-        if DailyCuriosityCache.shared.isToday(),
-           let cached = DailyCuriosityCache.shared.load() {
-
-            dailyCuriosity = cached
-            return
-        }
-
-
-        Task {
-
-            isLoadingCuriosity = true
-
-            do {
-
-                let result = try await ExploreAIService.shared.generateDailyCuriosity(
-                    history: HistoryService.shared.history
-                )
-
-
-                DailyCuriosityCache.shared.save(result)
-                DailyCuriosityCache.shared.saveDate()
-
-
-                await MainActor.run {
-
-                    dailyCuriosity = result
-                    isLoadingCuriosity = false
-
-                }
-
-
-            } catch {
-
-                print(
-                    "❌ Daily Curiosity failed:",
-                    error.localizedDescription
-                )
-
-
-                await MainActor.run {
-
-                    isLoadingCuriosity = false
-
-                }
-
-            }
-
-        }
-
-    }
-
 
     var body: some View {
 
@@ -146,107 +19,29 @@ struct ExploreView: View {
 
                 VStack(spacing: 32) {
 
+                    ExploreHeaderView()
 
-                    if let curiosity = dailyCuriosity {
+                    DailyMomentumCard()
 
-                        NavigationLink {
+                    CurrentObjectiveCard()
 
-                            TrendingDetailView(
-                                object: curiosity
-                            )
+                    QuizCard()
 
-                        } label: {
+                    DailyCuriositySection()
 
-                            DailyCuriosityCard(
-                                object: curiosity
-                            )
+                    WorldLearningSection()
 
-                        }
-                        .buttonStyle(.plain)
+                    TrendingSection()
 
-                    } else {
+                    FunFactCard()
 
-                        ProgressView("Creating today's curiosity...")
-                            .padding()
+                    MysteryObjectCard()
 
-                    }
+                    BadgeProgressCard()
 
+                    FactCard()
 
-                    VStack(alignment: .leading, spacing: 16) {
-
-                        Text("🌍 The World Is Learning")
-                            .font(.title2)
-                            .bold()
-                            .padding(.horizontal)
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-
-                            HStack(spacing: 16) {
-
-                                if isLoadingWorldLearning {
-
-                                    ProgressView("Discovering what the world is learning...")
-
-                                } else {
-
-                                    ForEach(worldLearningTopics) { object in
-
-                                        NavigationLink {
-
-                                            TrendingDetailView(
-                                                object: object
-                                            )
-
-                                        } label: {
-
-                                            WorldLearningCard(object: object)
-                                                .frame(width: 320)
-
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-                            .padding(.horizontal)
-
-                        }
-
-                    }
-
-
-                    ExploreSection(
-                        title: "Trending Today",
-                        systemImage: "flame.fill"
-                    ) {
-
-                        ScrollView(.horizontal, showsIndicators: false) {
-
-                            HStack(spacing: 16) {
-
-                                ForEach(trendingTopics) { topic in
-
-                                    NavigationLink {
-
-                                        TrendingDetailView(object: topic)
-
-                                    } label: {
-
-                                        TrendingCard(object: topic)
-
-                                    }
-                                    .buttonStyle(.plain)
-
-                                }
-
-                            }
-                            .padding(.horizontal)
-
-                        }
-
-                    }
-
+                    RareFindsCard()
 
                     ExploreSection(
                         title: "Categories",
@@ -279,37 +74,16 @@ struct ExploreView: View {
                     }
 
                 }
+                .padding(.horizontal, 20)
+
                 .padding(.vertical)
 
             }
             .navigationTitle("Explore")
-            .onAppear {
-
-                if dailyCuriosity == nil {
-
-                    loadDailyCuriosity()
-
-                }
-                if worldLearningTopics.isEmpty {
-
-                    loadWorldLearning()
-
-                }
-                if trendingTopics.isEmpty {
-
-                    loadTrending()
-
-                }
-
-            }
-
         }
-
+        
     }
-    
-
 }
-
 
 #Preview {
 

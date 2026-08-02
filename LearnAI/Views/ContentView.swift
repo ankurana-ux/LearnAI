@@ -2,41 +2,48 @@ import SwiftUI
 
 struct ContentView: View {
 
+    @State private var selectedTab: AppTab = .explore
+    
     var body: some View {
 
-        TabView {
+        ZStack(alignment: .bottom) {
 
-            CameraView()
-                .tabItem {
-                    Label("Scan", systemImage: "camera.viewfinder")
+            Group {
+
+                switch selectedTab {
+
+                case .explore:
+                    ExploreView()
+
+                case .library:
+                    LibraryView()
+
+                case .scan:
+                    CameraView()
+
+                case .search:
+                    SearchView()
+
+                case .profile:
+                    ProfileView()
+
                 }
 
-            SearchView()
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
+            }
 
-            LibraryView()
-                .tabItem {
-                    Label("Library", systemImage: "books.vertical")
-                }
-
-            ExploreView()
-                .tabItem {
-                    Label("Explore", systemImage: "globe")
-                }
-
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
+            BottomTabBar(
+                selectedTab: $selectedTab
+            )
 
         }
+        .ignoresSafeArea(.keyboard)
 
     }
 
 }
 
 #Preview {
+
     ContentView()
+
 }
