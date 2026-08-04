@@ -2,42 +2,102 @@ import SwiftUI
 
 struct UserRankCard: View {
 
+    @ObservedObject private var learning = LearningProfileService.shared
+
     var body: some View {
 
-        AppCard {
+        let profile = learning.profile
+
+        VStack(alignment: .leading, spacing: 20) {
 
             HStack {
 
-                Circle()
-                    .frame(width: 50, height: 50)
+                VStack(alignment: .leading, spacing: 6) {
 
-                VStack(alignment: .leading) {
+                    Text("YOUR RANK")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.8))
 
                     Text("Curiosity Spark")
-                        .font(.headline)
+                        .font(.title2.bold())
+                        .foregroundStyle(.white)
 
-                    Text("Level 1 Explorer")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text("Level \(profile.level) Explorer")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.85))
 
                 }
 
                 Spacer()
 
-                VStack(alignment: .trailing) {
+                Circle()
+                    .fill(.white.opacity(0.2))
+                    .frame(width: 72, height: 72)
+                    .overlay {
 
-                    Text("180 XP")
-                        .bold()
+                        Image(systemName: "person.fill")
+                            .font(.title)
+                            .foregroundStyle(.white)
+
+                    }
+
+            }
+
+            Divider()
+                .overlay(.white.opacity(0.2))
+
+            HStack {
+
+                VStack(alignment: .leading, spacing: 4) {
+
+                    Text("#206")
+                        .font(.title.bold())
+                        .foregroundStyle(.white)
+
+                    Text("Global Rank")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
+
+                }
+
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 4) {
+
+                    Text("\(profile.points) LP")
+                        .font(.title3.bold())
+                        .foregroundStyle(.white)
 
                     Text("Top 12%")
                         .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
 
                 }
 
             }
 
         }
+        .padding(24)
+        .background(
+            LinearGradient(
+                colors: [
+                    Color(red: 124/255, green: 58/255, blue: 237/255),
+                    Color(red: 99/255, green: 102/255, blue: 241/255)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(
+            RoundedRectangle(cornerRadius: 28)
+        )
 
     }
+
+}
+
+#Preview {
+
+    UserRankCard()
 
 }

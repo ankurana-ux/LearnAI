@@ -3,8 +3,8 @@ import SwiftUI
 struct SearchView: View {
     @State private var query = ""
     @State private var submittedQuery = ""
-    @State private var recentSearches: [String] = []
     @State private var hasSubmittedSearch = false
+    @FocusState private var isSearchFocused: Bool
 
     private let suggestions = [
         "Why is the sky blue?",
@@ -31,26 +31,77 @@ struct SearchView: View {
         }
 
     }
-    
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                TextField(
-                    "Ask anything...",
-                    text: $query
-                )
-                .submitLabel(.search)
-                .onSubmit {
+                VStack(alignment: .leading, spacing: 12) {
 
-                    submittedQuery = query.trimmingCharacters(
-                        in: .whitespacesAndNewlines
+                    Text("Search Real World")
+                        .font(.largeTitle.bold())
+
+                    Text("Knowledge")
+                        .font(.largeTitle.bold())
+
+                    Text("Find objects in your library or trigger AI to research any item instantly.")
+                        .font(.title3)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 4)
+
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.top, 12)
+                
+                HStack(spacing: 12) {
+
+                    HStack(spacing: 12) {
+
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+
+                        TextField(
+                            "Search anything here...",
+                            text: $query
+                        )
+                        .focused($isSearchFocused)
+                        .submitLabel(.search)
+                        .onSubmit {
+
+                            submittedQuery = query.trimmingCharacters(
+                                in: .whitespacesAndNewlines
+                            )
+
+                            hasSubmittedSearch = true
+
+                        }
+
+                    }
+                    .padding(.horizontal, 18)
+                    .frame(height: 64)
+                    .background(.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.gray.opacity(0.18), lineWidth: 1)
                     )
 
-                    hasSubmittedSearch = true
+                    if isSearchFocused {
+
+                        Button("Cancel") {
+
+                            query = ""
+                            submittedQuery = ""
+                            hasSubmittedSearch = false
+                            isSearchFocused = false
+
+                        }
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+
+                    }
+
                 }
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
+                .padding(.horizontal)
+                .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
                 
                 if query.isEmpty {
 
@@ -60,61 +111,46 @@ struct SearchView: View {
 
                             VStack(alignment: .leading, spacing: 12) {
 
-                                Label("Recent Searches", systemImage: "clock")
+                                AppCard {
 
-                                ForEach(recentSearches, id: \.self) { item in
+                                    VStack(alignment: .leading, spacing: 18) {
 
-                                    Button {
+                                        AppSectionHeader(
+                                            title: "Recent Searches",
+                                            icon: "clock.arrow.circlepath",
+                                            color: .blue
+                                        )
 
-                                        query = item
-                                        submittedQuery = item
-                                        
-                                    } label: {
+                                        ForEach(history.recentSearches.prefix(5), id: \.self) { search in
 
-                                        HStack {
+                                            HStack {
 
-                                            Image(systemName: "clock.arrow.circlepath")
+                                                Image(systemName: "clock")
+                                                    .foregroundStyle(.secondary)
 
-                                            Text(item)
+                                                Text(search)
+                                                    .font(.body)
 
-                                            Spacer()
+                                                Spacer()
 
-                                        }
+                                                Image(systemName: "arrow.up.left")
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
 
-                                    }
-                                    .buttonStyle(.plain)
+                                            }
 
-                                }
+                                            if search != history.recentSearches.prefix(5).last {
 
-                            }
+                                                Divider()
 
-                            VStack(alignment: .leading, spacing: 12) {
-
-                                Label("Suggested Questions", systemImage: "sparkles")
-
-                                ForEach(suggestions, id: \.self) { question in
-
-                                    Button {
-
-                                        query = question
-                                        submittedQuery = question
-                                        
-                                    } label: {
-
-                                        HStack(alignment: .top) {
-
-                                            Image(systemName: "sparkles")
-
-                                            Text(question)
-
-                                            Spacer()
+                                            }
 
                                         }
 
                                     }
-                                    .buttonStyle(.plain)
 
                                 }
+                                .padding(.horizontal)
 
                             }
 
@@ -147,8 +183,6 @@ struct SearchView: View {
                                     for: submittedQuery
                                 )
                                 
-//                                var imageData: Data?
-
                                 if let imageURL = try? await ImageService.shared.fetchImageURL(
                                     for: info.name
                                 ),
@@ -245,13 +279,11 @@ struct SearchView: View {
                     }
                     .listStyle(.plain)
                 }
+                
             }
-            .navigationTitle("Discover")
-            .onAppear {
-
-                recentSearches = HistoryService.shared.recentSearches
-
-            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
+            
             .sheet(item: $selectedObject, onDismiss: {
 
                 selectedObject = nil

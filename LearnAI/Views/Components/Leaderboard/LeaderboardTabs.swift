@@ -8,7 +8,7 @@ struct LeaderboardTabs: View {
 
     var body: some View {
 
-        HStack(spacing: 24) {
+        HStack(spacing: 28) {
 
             ForEach(filters, id: \.self) { filter in
 
@@ -18,14 +18,28 @@ struct LeaderboardTabs: View {
 
                 } label: {
 
-                    Text(filter)
-                        .foregroundStyle(
-                            selectedFilter == filter ? .black : .gray
-                        )
+                    VStack(spacing: 10) {
+
+                        Text(filter)
+                            .font(.headline)
+                            .foregroundStyle(
+                                selectedFilter == filter ? .black : .gray
+                            )
+
+                        Rectangle()
+                            .fill(
+                                selectedFilter == filter ? Color.black : .clear
+                            )
+                            .frame(height: 2)
+
+                    }
 
                 }
+                .buttonStyle(.plain)
 
             }
+
+            Spacer()
 
         }
 

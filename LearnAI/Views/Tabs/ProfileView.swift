@@ -48,6 +48,10 @@ struct ProfileView: View {
 
                             AvailablePointsCard()
 
+                        } else {
+
+                            BadgeTabView()
+
                         }
 
                     }

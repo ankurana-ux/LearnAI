@@ -4,35 +4,44 @@ struct LeaderboardCard: View {
 
     var body: some View {
 
-        AppCard {
+        NavigationLink {
 
-            HStack {
+            LeaderboardView()
 
-                VStack(alignment: .leading, spacing: 8) {
+        } label: {
 
-                    AppSectionHeader(
-                        title: "Leaderboard",
-                        icon: "trophy.fill",
-                        color: .orange
-                    )
+            AppCard {
 
-                    Text("Check your ranking")
-                        .font(.title3.bold())
+                HStack {
 
-                    Text("See how your learning compares with other explorers.")
-                        .font(.subheadline)
+                    VStack(alignment: .leading, spacing: 8) {
+
+                        AppSectionHeader(
+                            title: "Leaderboard",
+                            icon: "trophy.fill",
+                            color: .orange
+                        )
+
+                        Text("Check your ranking")
+                            .font(.title3.bold())
+
+                        Text("See how your learning compares with other explorers.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
                         .foregroundStyle(.secondary)
 
                 }
 
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.secondary)
-
             }
 
         }
+        .buttonStyle(.plain)
 
     }
 
