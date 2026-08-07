@@ -2,87 +2,61 @@ import SwiftUI
 
 struct LearningCollectionCard: View {
 
+    let collection: LearningCollection
+
     var body: some View {
 
         AppCard {
 
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 10) {
 
-                HStack(alignment: .top, spacing: 16) {
+                // MARK: Header
 
-                    Image("botany")
+                HStack(alignment: .top) {
+
+                    Image(collection.icon)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 60, height: 60)
-
-                    VStack(alignment: .leading, spacing: 6) {
-
-                        Text("Spring Flowers")
-                            .font(.headline)
-
-                        Text("Botany")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                    }
+                        .frame(width: 52, height: 52)
 
                     Spacer()
 
-                }
-
-                ProgressView(value: 12, total: 18)
-                    .tint(.green)
-
-                HStack {
-
-                    Text("12 / 18 Discoveries")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    Spacer()
-
-                    Text("67%")
-                        .font(.caption.bold())
+//                    Text(
+//                        "\(Int((Double(collection.discovered) / Double(collection.total)) * 100))%"
+//                    )
+//                    .font(.headline)
+//                    .foregroundStyle(.secondary)
 
                 }
 
-                HStack(spacing: 8) {
+                // MARK: Title
 
-                    Image("badge_1")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 28, height: 28)
-                        .clipShape(Circle())
+                Text(collection.title)
+                    .font(.system(size: 17, weight: .semibold))
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
 
-                    Image("badge_1")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 28, height: 28)
-                        .clipShape(Circle())
+                Text(collection.category.uppercased())
+                    .font(.caption.bold())
+                    .foregroundStyle(
+                        Color(
+                            red: 156 / 255,
+                            green: 163 / 255,
+                            blue: 175 / 255
+                        )
+                    )
 
-                    Image("badge_1")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 28, height: 28)
-                        .clipShape(Circle())
+                // MARK: Progress
 
-                    ZStack {
+                ProgressView(
+                    value: Double(collection.discovered),
+                    total: Double(collection.total)
+                )
+                .tint(.green)
 
-                        Circle()
-                            .fill(Color.gray.opacity(0.15))
-                            .frame(width: 28, height: 28)
-
-                        Image(systemName: "plus")
-                            .font(.caption2.bold())
-
-                    }
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
-
-                }
+                Text("\(collection.discovered)/\(collection.total) discoveries")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
 
             }
 
@@ -94,6 +68,8 @@ struct LearningCollectionCard: View {
 
 #Preview {
 
-    LearningCollectionCard()
+    LearningCollectionCard(
+        collection: LearningCollectionService.shared.collections.first!
+    )
 
 }

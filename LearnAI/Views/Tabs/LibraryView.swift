@@ -18,15 +18,15 @@ struct LibraryView: View {
             ScrollView {
 
                 VStack(spacing: AppTheme.Spacing.section) {
-                    
+
                     LibraryHeader()
-                    
+
                     RecommendedCollectionCard()
-                    
+
                     FunFactCard()
-                    
+
                     LearningCollectionsSection()
-                    
+
                     if filteredHistory.isEmpty {
 
                         ContentUnavailableView(
@@ -38,9 +38,15 @@ struct LibraryView: View {
                     } else {
 
                         RecentDiscoveriesSection()
+                            .padding(.horizontal, 5)
 
                     }
+
                 }
+                .padding(.horizontal, 10)
+                .padding(.top, 40)      // or 24, 32 depending on the look you want
+                .padding(.bottom, 100)
+
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .navigationBar)

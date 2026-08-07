@@ -4,31 +4,48 @@ struct DailyCuriositySection: View {
 
     var body: some View {
 
-        AppCard {
+        AppCard(padding: 0) {
 
-            VStack(alignment: .leading, spacing: 16) {
-                
-                Text("Daily Curiosity")
-                    .font(.title3.bold())
-                
-                VStack(alignment: .leading, spacing: 12) {
-                    
-                    Image("tesla")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 180)
-                        .clipShape(
-                            RoundedRectangle(cornerRadius: 20)
+            VStack(spacing: 0) {
+
+                Image("tesla")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 220)
+                    .clipped()
+
+                VStack(alignment: .leading, spacing: 10) {
+
+                    AppSectionHeader(
+                        title: "Daily Curiosity",
+                        icon: "bolt.fill",
+                        color: Color(
+                            red: 156 / 255,
+                            green: 163 / 255,
+                            blue: 175 / 255
                         )
-                    
-                    Text("Why do leaves change colour?")
-                        .font(.headline)
-                    
-                    Text("Discover the science behind one of nature's most beautiful transformations.")
+                    )
+
+                    Text("The Secret of Orchid Pollination")
+                        .font(.title3.bold())
+
+                    Text("Recent AI analysis reveals that certain orchids use complex pheromonal signals that were previously unknown...")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    
+
+                    Button {
+
+                    } label: {
+
+                        Text("Learn More")
+                            .font(.headline)
+
+                    }
+
                 }
+                .padding(24)
+
             }
 
         }

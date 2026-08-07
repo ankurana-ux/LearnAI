@@ -37,21 +37,18 @@ struct SearchView: View {
             VStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 12) {
 
-                    Text("Search Real World")
-                        .font(.largeTitle.bold())
-
-                    Text("Knowledge")
+                    Text("Search Real World Knowledge")
                         .font(.largeTitle.bold())
 
                     Text("Find objects in your library or trigger AI to research any item instantly.")
-                        .font(.title3)
+                        .font(.headline)
                         .foregroundStyle(.secondary)
                         .padding(.top, 4)
 
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
-                .padding(.top, 12)
+                .padding(.horizontal, 25)
+                .padding(.top, 25)
                 
                 HStack(spacing: 12) {
 
@@ -100,7 +97,8 @@ struct SearchView: View {
                     }
 
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 25)
+                .padding(.top, 8)
                 .animation(.easeInOut(duration: 0.2), value: isSearchFocused)
                 
                 if query.isEmpty {
@@ -129,7 +127,7 @@ struct SearchView: View {
                                                     .foregroundStyle(.secondary)
 
                                                 Text(search)
-                                                    .font(.body)
+                                                    .font(.subheadline)
 
                                                 Spacer()
 
@@ -150,13 +148,14 @@ struct SearchView: View {
                                     }
 
                                 }
-                                .padding(.horizontal)
+                               // .padding(.horizontal)
 
                             }
 
                         }
-                        .padding()
-
+                        .padding(.horizontal, 25)
+                        .padding(.top, 20)
+                        .padding(.bottom, 120)
                     }
 
                 } else if hasSubmittedSearch && filteredHistory.isEmpty {

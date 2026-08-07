@@ -11,15 +11,20 @@ struct FactCard: View {
             AppSectionHeader(
                 title: "Fun Fact",
                 icon: "sparkles",
-                color: .orange
+                color: Color(
+                    red: 156 / 255,
+                    green: 163 / 255,
+                    blue: 175 / 255
+                )
             )
             
             Text("Honey never spoils. Archaeologists have found edible honey in Egyptian tombs over 3,000 years old.")
                 .font(.headline)
                 .multilineTextAlignment(.center)
             
-            Image(systemName: "arrow.right.circle.fill")
-                .font(.title2)
+            Image(systemName: "arrow.right")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.black)
             
         }
     }

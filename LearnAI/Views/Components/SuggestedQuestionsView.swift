@@ -8,21 +8,25 @@ struct SuggestedQuestionsView: View {
 
     var body: some View {
 
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
 
-            Label("Try asking", systemImage: "sparkles")
-                .font(.headline)
+            Text("TRY ASKING")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .tracking(1)
 
             ScrollView(.horizontal, showsIndicators: false) {
 
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
 
                     if isLoading {
 
                         ForEach(0..<4, id: \.self) { _ in
-                            Capsule()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 120, height: 38)
+
+                            RoundedRectangle(cornerRadius: 18)
+                                .fill(Color(.secondarySystemBackground))
+                                .frame(width: 150, height: 48)
+
                         }
 
                     } else {
@@ -30,14 +34,29 @@ struct SuggestedQuestionsView: View {
                         ForEach(questions, id: \.self) { question in
 
                             Button {
+
                                 onTap(question)
+
                             } label: {
-                                Text(question)
-                                    .font(.subheadline)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 10)
-                                    .background(.ultraThinMaterial)
-                                    .clipShape(Capsule())
+
+                                HStack(spacing: 8) {
+
+                                    Image(systemName: "sparkles")
+                                        .font(.caption)
+                                        .foregroundStyle(.blue)
+
+                                    Text(question)
+                                        .font(.subheadline.weight(.medium))
+                                        .multilineTextAlignment(.leading)
+
+                                }
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 14)
+                                .background(Color(.secondarySystemBackground))
+                                .clipShape(
+                                    RoundedRectangle(cornerRadius: 18)
+                                )
+
                             }
                             .buttonStyle(.plain)
 
@@ -48,7 +67,7 @@ struct SuggestedQuestionsView: View {
                 }
                 .padding(.vertical, 2)
 
-            } // ← Missing brace
+            }
 
         }
 
@@ -57,11 +76,14 @@ struct SuggestedQuestionsView: View {
 }
 
 #Preview {
+
     SuggestedQuestionsView(
         questions: [
             "Is it dangerous?",
-            "What does it eat?"
+            "What does it eat?",
+            "Interesting facts"
         ],
         isLoading: false
     ) { _ in }
+
 }

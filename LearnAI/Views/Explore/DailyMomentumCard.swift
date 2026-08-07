@@ -8,24 +8,41 @@ struct DailyMomentumCard: View {
 
         let profile = learning.profile
 
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 10) {
 
-            AppSectionHeader(
-                title: "Daily Momentum",
-                icon: "bolt.fill",
-                color: .yellow
-            )
+            // Header
 
-            VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 8) {
 
-                Text("\(profile.currentStreak)")
-                    .font(.system(size: 42, weight: .bold))
+                Image(systemName: "bolt.fill")
+                    .foregroundStyle(.yellow)
 
-                Text("DAY STREAK")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                Text("DAILY MOMENTUM")
+                    .font(.caption.bold())
+                    .foregroundStyle(
+                        Color(
+                            red: 156/255,
+                            green: 163/255,
+                            blue: 175/255
+                        )
+                    )
 
             }
+
+            // Streak
+
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+
+                Text("\(profile.currentStreak)")
+                    .font(.system(size: 54, weight: .bold))
+
+                Text("DAY STREAK")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.gray)
+
+            }
+
+            // Description
 
             Text(
                 "Ranking \(profile.rank). You have learned about \(profile.scansThisMonth) items this month. Keep the momentum going."
@@ -33,19 +50,16 @@ struct DailyMomentumCard: View {
             .font(.footnote)
             .foregroundStyle(.secondary)
 
-            VStack(spacing: 8) {
+            // Progress
+
+            HStack(spacing: 10) {
 
                 ProgressView(value: max(profile.progressToNextLevel, 0.01))
                     .tint(.white)
 
-                HStack {
-
-                    Spacer()
-
-                    Text("\(Int(profile.progressToNextLevel * 100))% Leaderboard")
-                        .font(.caption.bold())
-
-                }
+                Text("\(Int(profile.progressToNextLevel * 100))% Leaderboard")
+                    .font(.caption.bold())
+                    .foregroundStyle(.white)
 
             }
 
@@ -53,14 +67,12 @@ struct DailyMomentumCard: View {
         .foregroundStyle(.white)
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
+
         .background(
-            LinearGradient(
-                colors: [
-                    .black,
-                    .gray.opacity(0.85)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+            Color(
+                red: 43/255,
+                green: 43/255,
+                blue: 43/255
             )
         )
         .clipShape(
@@ -77,7 +89,5 @@ struct DailyMomentumCard: View {
 }
 
 #Preview {
-
     DailyMomentumCard()
-
 }

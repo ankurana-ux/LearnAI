@@ -7,111 +7,139 @@ struct ChatSectionView: View {
 
     var body: some View {
 
-        Divider()
+        VStack(alignment: .leading, spacing: 16) {
 
-        ScrollViewReader { proxy in
+            Text("CONVERSATION")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .tracking(1)
 
-            ScrollView {
+            ScrollViewReader { proxy in
 
-                LazyVStack(alignment: .leading, spacing: 16) {
+                ScrollView {
 
-                    ForEach(messages) { message in
+                    LazyVStack(alignment: .leading, spacing: 16) {
 
-                        HStack {
+                        ForEach(messages) { message in
 
-                            if message.isUser {
+                            HStack {
 
-                                Spacer(minLength: 50)
+                                if message.isUser {
 
-                                VStack(alignment: .trailing, spacing: 4) {
+                                    Spacer(minLength: 50)
 
-                                    Text("You")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
+                                    VStack(alignment: .trailing, spacing: 6) {
 
-                                    if message.text.isEmpty {
+                                        Text("YOU")
+                                            .font(.caption2.weight(.semibold))
+                                            .foregroundStyle(.secondary)
+                                            .tracking(1)
 
-                                        HStack(spacing: 4) {
+                                        if message.text.isEmpty {
 
-                                            Circle()
-                                                .frame(width: 6, height: 6)
+                                            HStack(spacing: 4) {
 
-                                            Circle()
-                                                .frame(width: 6, height: 6)
+                                                Circle()
+                                                    .frame(width: 6, height: 6)
 
-                                            Circle()
-                                                .frame(width: 6, height: 6)
+                                                Circle()
+                                                    .frame(width: 6, height: 6)
+
+                                                Circle()
+                                                    .frame(width: 6, height: 6)
+
+                                            }
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 14)
+                                            .background(.white)
+                                            .clipShape(
+                                                RoundedRectangle(cornerRadius: 22)
+                                            )
+
+                                        } else {
+
+                                            MarkdownText(text: message.text)
+                                                .padding(.horizontal, 16)
+                                                .padding(.vertical, 12)
+                                                .background(.white)
+                                                .clipShape(
+                                                    RoundedRectangle(cornerRadius: 22)
+                                                )
 
                                         }
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 14)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(
-                                            RoundedRectangle(cornerRadius: 22)
-                                        )
 
-                                    } else {
+                                    }
+
+                                } else {
+
+                                    VStack(alignment: .leading, spacing: 6) {
+
+                                        HStack(spacing: 6) {
+
+                                            Image(systemName: "sparkles")
+                                                .foregroundStyle(.blue)
+
+                                            Text("LEARNAI")
+                                                .font(.caption2.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                                .tracking(1)
+
+                                        }
 
                                         MarkdownText(text: message.text)
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 12)
-                                            .background(.ultraThinMaterial)
+                                            .background(
+                                                Color(
+                                                    red: 207 / 255,
+                                                    green: 226 / 255,
+                                                    blue: 243 / 255
+                                                )
+                                            )
                                             .clipShape(
                                                 RoundedRectangle(cornerRadius: 22)
                                             )
 
                                     }
 
-                                }
-
-                            } else {
-
-                                VStack(alignment: .leading, spacing: 4) {
-
-                                    HStack(spacing: 6) {
-
-                                        Image(systemName: "sparkles")
-                                            .foregroundStyle(.blue)
-
-                                        Text("LearnAI")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-
-                                    }
-
-                                    MarkdownText(text: message.text)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 12)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(
-                                            RoundedRectangle(cornerRadius: 22)
-                                        )
+                                    Spacer(minLength: 50)
 
                                 }
-
-                                Spacer(minLength: 50)
 
                             }
+                            .id(message.id)
+                            .transition(
+                                .move(edge: .bottom)
+                                .combined(with: .opacity)
+                            )
 
                         }
-                        .id(message.id)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
 
                     }
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
 
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 12)
+                .frame(maxHeight: 250)
+                .background(
+                    Color(
+                        red: 246 / 255,
+                        green: 246 / 255,
+                        blue: 246 / 255
+                    )
+                )
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 24)
+                )
+                .onChange(of: messages.count) { _, _ in
 
-            }
-            .frame(maxHeight: 250)
-            .onChange(of: messages.count) { _, _ in
+                    guard let last = messages.last else { return }
 
-                guard let last = messages.last else { return }
+                    withAnimation {
 
-                withAnimation {
+                        proxy.scrollTo(last.id, anchor: .bottom)
 
-                    proxy.scrollTo(last.id, anchor: .bottom)
+                    }
 
                 }
 

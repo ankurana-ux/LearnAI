@@ -2,6 +2,11 @@ import SwiftUI
 
 struct LearningCollectionsSection: View {
 
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
     var body: some View {
 
         VStack(alignment: .leading, spacing: 20) {
@@ -16,18 +21,49 @@ struct LearningCollectionsSection: View {
 
                 Spacer()
 
-                Button("View All") {
+//                Button("View All") {
+//
+//                }
+                NavigationLink {
+
+                    CollectionsView()
+
+                } label: {
+
+                    Text("View All")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.blue)
 
                 }
-                .font(.subheadline.weight(.semibold))
+                .buttonStyle(.plain)
 
             }
 
-            LearningCollectionCard()
+            LazyVGrid(
+                columns: columns,
+                spacing: 20
+            ) {
 
-            LearningCollectionCard()
+                ForEach(LearningCollectionService.shared.collections) { collection in
 
-            LearningCollectionCard()
+                    NavigationLink {
+
+                        CollectionDetailView(
+                            collection: collection
+                        )
+
+                    } label: {
+
+                        LearningCollectionCard(
+                            collection: collection
+                        )
+
+                    }
+                    .buttonStyle(.plain)
+
+                }
+
+            }
 
         }
 

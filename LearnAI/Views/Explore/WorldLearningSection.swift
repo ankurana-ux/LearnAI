@@ -4,40 +4,53 @@ struct WorldLearningSection: View {
 
     var body: some View {
 
+        VStack(alignment: .leading, spacing: 10) {
 
-        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .bottom) {
 
-            Text("World is Learning")
-                .font(.title3.bold())
-
-            HStack {
-
-                Image("tesla")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 90, height: 90)
-                    .clipShape(
-                        RoundedRectangle(cornerRadius: 16)
-                    )
-
-                VStack(alignment: .leading) {
-
-                    Text("People are discovering")
-                        .font(.headline)
-
-                    Text("12,420 objects today")
-                        .foregroundStyle(.secondary)
-
-                }
+                Text("Trending Around the World")
+                    .font(.title3.bold())
 
                 Spacer()
 
+                Text("UPDATED DAILY")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+
             }
-            .padding()
-            .background(.white)
-            .clipShape(
-                RoundedRectangle(cornerRadius: 28)
-            )
+
+            ScrollView(.horizontal, showsIndicators: false) {
+
+                HStack(spacing: 20) {
+
+                    WorldLearningItem(
+                        imageName: "tesla",
+                        title: "Roman Empire",
+                        subtitle: "Why is everyone suddenly fascinated by Ancient Rome?"
+                    )
+
+                    WorldLearningItem(
+                        imageName: "tesla",
+                        title: "Dinosaurs",
+                        subtitle: "What really caused their extinction millions of years ago?"
+                    )
+
+                    WorldLearningItem(
+                        imageName: "tesla",
+                        title: "Cherry Blossoms",
+                        subtitle: "Why do cherry blossoms bloom for such a short time?"
+                    )
+
+                    WorldLearningItem(
+                        imageName: "tesla",
+                        title: "Mechanical Watches",
+                        subtitle: "How do watches keep perfect time without batteries?"
+                    )
+
+                }
+                .padding(.horizontal, 2)
+
+            }
 
         }
 
@@ -45,6 +58,57 @@ struct WorldLearningSection: View {
 
 }
 
+private struct WorldLearningItem: View {
+
+    let imageName: String
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+
+        VStack(alignment: .leading, spacing: 0) {
+
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 290, height: 210)
+                .clipped()
+
+            VStack(alignment: .leading, spacing: 12) {
+
+                Text("TRENDING")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+
+                Text(title)
+                    .font(.title3.bold())
+
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+
+            }
+            .padding(22)
+
+        }
+        .frame(width: 290)
+        .background(Color.white)
+        .clipShape(
+            RoundedRectangle(cornerRadius: 30)
+        )
+        .shadow(
+            color: .black.opacity(0.06),
+            radius: 10,
+            y: 5
+        )
+
+    }
+
+}
+
 #Preview {
+
     WorldLearningSection()
+
 }

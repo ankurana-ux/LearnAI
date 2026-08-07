@@ -16,6 +16,18 @@ struct ObjectInfoSheet: View {
     @State private var chatError: String?
     @State private var lastQuestion: String?
     @StateObject private var imageLoader = RemoteImageLoader()
+    @State private var selectedTab = 0
+    @State private var detailedMode = false
+//    @Environment(\.dismiss) private var dismiss
+
+    private let tabs = [
+        "Summary",
+        "History",
+        "Uses",
+        "Fun Facts",
+        "Safety"
+    ]
+    
     
     var body: some View {
         
@@ -23,130 +35,339 @@ struct ObjectInfoSheet: View {
             
             ScrollView {
                 
-                if let imageData,
-                   let uiImage = UIImage(data: imageData) {
-
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 240)
+                VStack(spacing: 0) {
+                    
+//                    HStack {
+//
+//                        Button {
+//
+//                            dismiss()
+//
+//                        } label: {
+//
+//                            HStack(spacing: 4) {
+//
+//                                Image(systemName: "chevron.left")
+//                                    .font(.headline)
+//
+////                                Text("Detail")
+////                                    .font(.headline)
+//
+//                            }
+//                            .foregroundStyle(.primary)
+//
+//                        }
+//
+//                        Spacer()
+//
+//                        Text("Detail")
+//                            .font(.title3.bold())
+//
+//                        Spacer()
+//
+//                        Button {
+//
+//                            // Share
+//
+//                        } label: {
+//
+//                            Image(systemName: "square.and.arrow.up")
+//                                .font(.headline)
+//                                .foregroundStyle(.primary)
+//                                .frame(width: 32)
+//
+//                        }
+//
+//                    }
+//                    .padding(.horizontal, 24)
+//                    .padding(.top, 20)
+//                    .padding(.bottom, 28)
+                    
+                    if let imageData,
+                       let uiImage = UIImage(data: imageData) {
+                        
+                        Image(uiImage: uiImage)
+                            .frame(height: 260)
+                            .frame(maxWidth: .infinity)
+                            .clipShape(
+                                RoundedRectangle(cornerRadius: 28)
+                            )
+                            .padding(.horizontal, 24)
+                        
+                    } else if let urlString = imageLoader.imageURL,
+                              let url = URL(string: urlString) {
+                        
+                        AsyncImage(url: url) { image in
+                            
+                            image
+                                .resizable()
+                                .scaledToFill()
+                            
+                        } placeholder: {
+                            
+                            ProgressView()
+                            
+                        }
+                        .frame(height: 260)
                         .frame(maxWidth: .infinity)
                         .clipShape(
-                            RoundedRectangle(cornerRadius: 20)
+                            RoundedRectangle(cornerRadius: 28)
                         )
-                        .padding(.horizontal)
-
-                } else if let urlString = imageLoader.imageURL,
-                          let url = URL(string: urlString) {
-
-                    AsyncImage(url: url) { image in
-
-                        image
+                        .padding(.horizontal, 24)
+                        
+                    } else {
+                        
+                        Image(systemName: "photo")
                             .resizable()
-                            .scaledToFill()
-
-                    } placeholder: {
-
-                        ProgressView()
-
+                            .scaledToFit()
+                            .frame(height: 120)
+                            .frame(maxWidth: .infinity)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal)
+                        
                     }
-                    .frame(height: 240)
-                    .frame(maxWidth: .infinity)
-                    .clipShape(
-                        RoundedRectangle(cornerRadius: 20)
-                    )
-                    .padding(.horizontal)
-
-                } else {
-
-                    Image(systemName: "photo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 120)
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal)
-
-                }
-                
-                VStack(alignment: .leading, spacing: 24) {
                     
-                    // MARK: Handle
-                    
-                    ObjectHeaderView(object: object)
-                    
-                    // MARK: Summary
-                    
-                    QuickSummaryView(object: object)
-                    
-                    // MARK: Quick Facts
-                    
-                    QuickFactsView(facts: object.facts)
-                    
-                    // MARK: AI Information
-                    
-                    AIInformationView(
-                        aiInfo: aiInfo,
-                        object: object
-                    )
-                    
-                    ChatSectionView(
-                        messages: messages,
-                        isAskingAI: isAskingAI
-                    )
-                    if let _ = chatError {
+                    VStack(alignment: .leading, spacing: 24) {
+                        
+                        // MARK: Handle
+                        
+                        VStack(alignment: .leading, spacing: 8) {
 
-                        HStack {
+                            Text(object.name)
+                                .font(.system(size: 32, weight: .bold))
 
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundStyle(.orange)
+                            Text("Recent AI analysis of this object.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
 
-                            Text("AI couldn't respond")
-
-                            Spacer()
-
-                            Button("Try Again") {
-
-                                guard let lastQuestion else { return }
-
-                                question = lastQuestion
-                                askQuestion()
-                            }
-                            
-                            .buttonStyle(.bordered)
+                            Text(object.category)
+                                .font(.subheadline.weight(.semibold))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    Color(
+                                        red: 156 / 255,
+                                        green: 163 / 255,
+                                        blue: 175 / 255
+                                    )
+                                    .opacity(0.15)
+                                )
+                                .clipShape(Capsule())
 
                         }
-                        .padding(.horizontal)
+                        .padding(.top, 20)
+                        
+                        VStack {
+
+                            HStack(spacing: 12) {
+
+                                Toggle("", isOn: $detailedMode)
+                                    .labelsHidden()
+
+                                Text("Explain in detail")
+                                    .font(.headline)
+
+                                Spacer()
+
+                            }
+                            .padding(.top, 12)
+                            .padding(.bottom, 8)
+
+                        }
+//                        .background(
+//                            Color(
+//                                red: 246 / 255,
+//                                green: 246 / 255,
+//                                blue: 248 / 255
+//                            )
+//                        )
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 18)
+                        )
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+
+                            HStack(spacing: 28) {
+
+                                ForEach(tabs.indices, id: \.self) { index in
+
+                                    Button {
+
+                                        selectedTab = index
+
+                                    } label: {
+
+                                        VStack(spacing: 8) {
+
+                                            Text(tabs[index])
+                                                .font(.subheadline.weight(.semibold))
+                                                .foregroundStyle(
+                                                    selectedTab == index
+                                                    ? .primary
+                                                    : .secondary
+                                                )
+
+                                            Rectangle()
+                                                .fill(
+                                                    selectedTab == index
+                                                    ? Color.black
+                                                    : Color.clear
+                                                )
+                                                .frame(height: 2)
+
+                                        }
+
+                                    }
+                                    .buttonStyle(.plain)
+
+                                }
+
+                            }
+                            .padding(.vertical, 4)
+
+                        }
+                        .pickerStyle(.segmented)
+                        
+                        if let aiInfo {
+
+                            VStack(alignment: .leading, spacing: 20) {
+
+                                switch selectedTab {
+
+                                case 0:
+
+                                    QuickSummaryView(object: object)
+
+                                case 1:
+
+                                    AIInfoCard(
+                                        title: "History",
+                                        text: aiInfo.history
+                                    )
+
+                                case 2:
+
+                                    AIInfoCard(
+                                        title: "Uses",
+                                        text: aiInfo.uses.joined(separator: "\n• ")
+                                    )
+
+                                case 3:
+
+                                    AIInfoCard(
+                                        title: "Fun Facts",
+                                        text: aiInfo.funFacts.joined(separator: "\n• ")
+                                    )
+
+                                default:
+
+                                    AIInfoCard(
+                                        title: "Safety",
+                                        text: aiInfo.safety
+                                    )
+
+                                }
+
+                            }
+                            .padding(.top, 8)
+
+                        }
+                        
+
+                        VStack(alignment: .leading, spacing: 24) {
+
+                            ChatSectionView(
+                                messages: messages,
+                                isAskingAI: isAskingAI
+                            )
+
+                            if let _ = chatError {
+
+                                HStack {
+
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(.orange)
+
+                                    Text("AI couldn't respond")
+
+                                    Spacer()
+
+                                    Button("Try Again") {
+
+                                        guard let lastQuestion else { return }
+
+                                        question = lastQuestion
+                                        askQuestion()
+
+                                    }
+                                    .buttonStyle(.bordered)
+
+                                }
+                                .padding(.horizontal)
+
+                            }
+
+                            SuggestedQuestionsView(
+                                questions: suggestedQuestions,
+                                isLoading: isLoadingQuestions
+                            ) { question in
+
+                                self.question = question
+                                askQuestion()
+
+                            }
+
+                            ChatInputView(
+                                question: $question,
+                                isLoading: isAskingAI,
+                                onSend: askQuestion
+                            )
+
+                        }
+                        .padding(20)
+                        .background(
+                            Color(
+                                red: 246 / 255,
+                                green: 246 / 255,
+                                blue: 246 / 255
+                            )
+                        )
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 28)
+                        )
+
+                        LearnMoreButton(
+                            aiInfo: aiInfo,
+                            isLoading: isLoading
+                        ) {
+                            guard !isLoading else { return }
+                            onLearnMore()
+                        }
+                        .padding(.top, 20)
                     }
-                    
-                    SuggestedQuestionsView(
-                        questions: suggestedQuestions,
-                        isLoading: isLoadingQuestions
-                    ) { question in
-                        self.question = question
-                        askQuestion()
-                    }
-                    
-                    ChatInputView(
-                        question: $question,
-                        isLoading: isAskingAI,
-                        onSend: askQuestion
-                    )
- 
-                    .buttonStyle(.borderedProminent)
-                    LearnMoreButton(
-                        aiInfo: aiInfo,
-                        isLoading: isLoading
-                    ) {
-                        guard !isLoading else { return }
-                        onLearnMore()
-                    }
-                    .padding(.top, 20)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 24)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 24)
+                .navigationTitle("Detail")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+
+                    ToolbarItem(placement: .topBarTrailing) {
+
+                        Button {
+
+                            // Share
+
+                        } label: {
+
+                            Image(systemName: "square.and.arrow.up")
+                        }
+
+                    }
+
+                }
             }
-            
+            .scrollDismissesKeyboard(.immediately)
             .task {
                 await loadSuggestedQuestions()
             }

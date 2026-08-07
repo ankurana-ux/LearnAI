@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
 
     @State private var selectedTab: AppTab = .explore
+    @StateObject private var router = AppRouter()
     
     var body: some View {
 
@@ -30,16 +31,37 @@ struct ContentView: View {
                 }
 
             }
+            .environmentObject(router)
+            
+            if router.destination == nil {
 
-            BottomTabBar(
-                selectedTab: $selectedTab
-            )
+                BottomTabBar(
+                    selectedTab: $selectedTab
+                )
+
+            }
 
         }
         .ignoresSafeArea(.keyboard)
+        .fullScreenCover(item: $router.destination) { destination in
+
+            switch destination {
+
+            case .quiz:
+
+                QuizView()
+
+            case .guessObject:
+
+                GuessObjectView()
+
+            }
+
+        }
+        
 
     }
-
+        
 }
 
 #Preview {

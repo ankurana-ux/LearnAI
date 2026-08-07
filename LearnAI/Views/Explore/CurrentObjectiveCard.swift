@@ -5,19 +5,31 @@ struct CurrentObjectiveCard: View {
     @ObservedObject private var learning = LearningProfileService.shared
 
     var body: some View {
-        
+
         let profile = learning.profile
-       
-        
+
         AppCard {
 
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 10) {
 
-                AppSectionHeader(
-                    title: "Current Objective",
-                    icon: "target",
-                    color: .blue
-                )
+                HStack(alignment: .top) {
+
+                    AppSectionHeader(
+                        title: "Current Objective",
+                        icon: "target",
+                        color: Color(
+                            red: 156 / 255,
+                            green: 163 / 255,
+                            blue: 175 / 255
+                        )
+                    )
+
+                    Spacer()
+
+                    Text("+30 LP")
+                        .font(.caption.bold())
+                        .foregroundStyle(.orange)
+                }
 
                 Text("Scan 5 Kitchen Items")
                     .font(.title3.bold())
@@ -31,7 +43,11 @@ struct CurrentObjectiveCard: View {
                     ForEach(0..<5, id: \.self) { index in
 
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(index < profile.currentObjectiveProgress ? Color.green.opacity(0.2) : Color.gray.opacity(0.12))
+                            .fill(
+                                index < profile.currentObjectiveProgress
+                                ? Color.green.opacity(0.2)
+                                : Color.gray.opacity(0.12)
+                            )
                             .frame(width: 42, height: 42)
                             .overlay {
 
@@ -46,25 +62,16 @@ struct CurrentObjectiveCard: View {
 
                     }
 
-                }
-
-                HStack {
-
-                    Text("\(profile.currentObjectiveProgress)/5 Completed")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    Spacer()
-
-                    Text("+30 LP")
+                    Text("\(profile.currentObjectiveProgress)/5")
                         .font(.caption.bold())
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(.secondary)
 
                 }
 
             }
 
         }
+
     }
 
 }

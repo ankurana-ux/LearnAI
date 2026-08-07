@@ -4,9 +4,11 @@ import SwiftData
 @main
 struct LearnAIApp: App {
 
+
     var body: some Scene {
 
         WindowGroup {
+
             ContentView()
                 .preferredColorScheme(.light)
 
@@ -17,5 +19,7 @@ struct LearnAIApp: App {
                 SavedObject.self
             ]
         )
+
     }
+
 }

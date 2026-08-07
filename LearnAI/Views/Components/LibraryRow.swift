@@ -41,23 +41,9 @@ struct LibraryRow: View {
 
                 Spacer()
 
-                HStack(spacing: 16) {
-
-                    Button(action: onFavorite) {
-
-                        Image(systemName: item.isFavorite ? "star.fill" : "star")
-                            .font(.title3)
-                            .foregroundStyle(.yellow)
-
-                    }
-                    .buttonStyle(.plain)
-
-                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .foregroundStyle(.secondary)
-
-                }
-                .frame(width: 60)
-                .padding(.trailing, 8)
+                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                    .foregroundStyle(.secondary)
+                    .padding(.trailing, 8)
 
             }
             .contentShape(Rectangle())
@@ -101,7 +87,20 @@ struct LibraryRow: View {
             }
 
         }
-        .padding(.vertical, 0)
+        .padding(20)
+        .background(Color.white)
+        .clipShape(
+            RoundedRectangle(cornerRadius: 24)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color.gray.opacity(0.12), lineWidth: 1)
+        )
+        .shadow(
+            color: .black.opacity(0.05),
+            radius: 8,
+            y: 3
+        )
 
     }
 

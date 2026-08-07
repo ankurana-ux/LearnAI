@@ -3,14 +3,8 @@ import SwiftUI
 struct ExploreView: View {
     
     @StateObject private var history = HistoryService.shared
+    @EnvironmentObject private var router: AppRouter
     
-    let categories = ExploreData.categories
-
-    let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
-
     var body: some View {
 
         NavigationStack {
@@ -22,64 +16,72 @@ struct ExploreView: View {
                     ExploreHeaderView()
 
                     DailyMomentumCard()
+                        .padding(.horizontal, 5)
 
-                    CurrentObjectiveCard()
+                    NavigationLink {
 
-                    QuizCard()
+                        CollectionDetailView(
+                            collection: LearningCollectionService.shared.collections.first!
+                        )
+
+                    } label: {
+
+                        CurrentObjectiveCard()
+                            .padding(.horizontal, 5)
+
+                    }
+                    .buttonStyle(.plain)
+                    
+                    
+                    Button {
+
+                        router.destination = .quiz
+
+                    } label: {
+
+                        QuizCard()
+                            .padding(.horizontal, 5)
+
+                    }
+                    .buttonStyle(.plain)
 
                     DailyCuriositySection()
+                        .padding(.horizontal, 5)
 
                     WorldLearningSection()
 
                     TrendingSection()
 
                     FunFactCard()
+                        .padding(.horizontal, 5)
 
-                    MysteryObjectCard()
+                    Button {
 
-                    BadgeProgressCard()
+                        router.destination = .guessObject
 
-                    FactCard()
+                    } label: {
 
-                    RareFindsCard()
-
-                    ExploreSection(
-                        title: "Categories",
-                        systemImage: "square.grid.2x2.fill"
-                    ) {
-
-                        LazyVGrid(
-                            columns: columns,
-                            spacing: 18
-                        ) {
-
-                            ForEach(categories) { category in
-
-                                NavigationLink {
-
-                                    CategoryDetailView(category: category)
-
-                                } label: {
-
-                                    CategoryCard(category: category)
-
-                                }
-                                .buttonStyle(.plain)
-
-                            }
-
-                        }
-                        .padding(.horizontal)
+                        MysteryObjectCard()
+                            .padding(.horizontal, 5)
 
                     }
+                    .buttonStyle(.plain)
+                    
+                    BadgeProgressCard()
+                        .padding(.horizontal, 5)
+
+                    FactCard()
+                        .padding(.horizontal, 5)
+
+                    RareFindsCard()
+                        .padding(.horizontal, 5)
 
                 }
                 .padding(.horizontal, 20)
-
-                .padding(.vertical)
+                .padding(.top)
+                .padding(.bottom, 100)
 
             }
-            .navigationTitle("Explore")
         }
         
     }

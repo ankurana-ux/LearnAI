@@ -4,18 +4,53 @@ struct PrimaryButton: View {
 
     let title: String
 
+    var isEnabled: Bool = true
+
+    let action: () -> Void
+
     var body: some View {
-        Text(title)
-            .font(.headline)
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(.blue)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+
+        Button(action: action) {
+
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(
+                    isEnabled ? .white : Color.gray.opacity(0.8)
+                )
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(
+                    isEnabled ? Color.blue : Color.gray.opacity(0.4)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.6)
+
     }
+
 }
 
 #Preview {
-    PrimaryButton(title: "Scan Object")
-        .padding()
+
+    VStack(spacing: 20) {
+
+        PrimaryButton(
+            title: "Continue"
+        ) {
+
+        }
+
+        PrimaryButton(
+            title: "Disabled",
+            isEnabled: false
+        ) {
+
+        }
+
+    }
+    .padding()
+
 }

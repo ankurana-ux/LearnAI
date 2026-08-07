@@ -11,7 +11,11 @@ struct RecommendedCollectionCard: View {
                 AppSectionHeader(
                     title: "Recommended Collection",
                     icon: "sparkles",
-                    color: .green
+                    color: Color(
+                        red: 156 / 255,
+                        green: 163 / 255,
+                        blue: 175 / 255
+                    )
                 )
 
                 HStack(spacing: 20) {
@@ -40,9 +44,9 @@ struct RecommendedCollectionCard: View {
                     }
 
                     Spacer()
+                    
 
                 }
-
             }
 
         }

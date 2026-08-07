@@ -25,7 +25,7 @@ struct TrendingSection: View {
                             )
 
                         Text("Trending Object")
-                            .font(.headline)
+                            .font(.subheadline)
 
                     }
 

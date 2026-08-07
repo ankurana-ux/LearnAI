@@ -10,11 +10,15 @@ struct LibraryHeader: View {
                 .font(.largeTitle.bold())
 
             Text("Browse everything you've discovered through scanning and AI research.")
-                .font(.title3)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 25)
+
+//        .padding(.horizontal, 35)
+//        .padding(.top, 25)
 
     }
 
@@ -23,3 +27,4 @@ struct LibraryHeader: View {
 #Preview {
     LibraryHeader()
 }
+
